@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>js13k Audio elements</title>
+        <script>
+
+
+
+
+                audio = {
+                    ctx: new(window.audioContext || window.webkitAudioContext),
+                    osc: null,
+                    notesPlaying: {},
+                    beepStart: function(freq, shape){
+                        oscillator = audio.ctx.createOscillator();
+                        oscillator.type = shape;
+                        oscillator.frequency.value = freq;
+                        oscillator.connect(audio.ctx.destination);
+                        oscillator.noteOn(0);
+
+                        return oscillator;
+                    },
+                    addNote: function(freq, shape){
+                        if (!this.notesPlaying.hasOwnProperty(freq)){
+                            osc = this.beepStart(freq, shape);
+                            this.notesPlaying[freq] = osc;
+                        }else{
+                            console.log('this note is already playing!');
+                        }
+
+                    },
+                    stopNote: function(freq){
+                        if (this.notesPlaying.hasOwnProperty(freq)){
+                            this.notesPlaying[freq].noteOff(0);
+                            delete this.notesPlaying[freq];
+                        }
+                    },
+                    stopAll: function(){
+                        for (var note in this.notesPlaying){
+                            this.stopNote(note);
+                        }
+                    }
+
+                }
+
+
+        </script>
+    </head>
+    <body>
+
+
+    </body>
+</html>
