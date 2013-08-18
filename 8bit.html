@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>8bit Sounds</title>
+    <script src="8bit.js"></script>
+    <script>
+        var gameMusic = new EightBit();
+
+        gameMusic.setTimeSignature(4, 4);
+        gameMusic.setTempo(200);
+
+        var firstPiano = gameMusic.createInstrument('square'),
+            secondPiano = gameMusic.createInstrument('sawtooth'),
+            thirdPiano = gameMusic.createInstrument('square');
+
+        firstPiano.setVolume(.25);
+        secondPiano.setVolume(.5);
+
+        /**
+         * Intro
+         */
+        // Bar 1
+        firstPiano.addNote('E5', 'eighth');
+        firstPiano.addNote('E5', 'eighth');
+        firstPiano.addRest('eighth');
+        firstPiano.addNote('E5', 'eighth');
+        firstPiano.addRest('eighth');
+        firstPiano.addNote('C5', 'eighth');
+        firstPiano.addNote('E5', 'eighth');
+        firstPiano.addRest('eighth');
+
+        secondPiano.addNote('F#4', 'eighth');
+        secondPiano.addNote('F#4', 'eighth');
+        secondPiano.addRest('eighth');
+        secondPiano.addNote('F#4', 'eighth');
+        secondPiano.addRest('eighth');
+        secondPiano.addNote('F#4', 'eighth');
+        secondPiano.addNote('F#4', 'eighth');
+        secondPiano.addRest('eighth');
+
+        thirdPiano.addRest('whole');
+
+        // Bar 2
+        firstPiano.addNote('G5', 'eighth');
+        firstPiano.addRest('eighth');
+        firstPiano.addRest('quarter');
+        firstPiano.addNote('G4', 'eighth');
+        firstPiano.addRest('eighth');
+        firstPiano.addRest('quarter');
+
+        secondPiano.addNote('B4', 'eighth');
+        secondPiano.addRest('eighth');
+        secondPiano.addRest('quarter');
+        secondPiano.addRest('half');
+
+        thirdPiano.addNote('G4', 'eighth');
+        thirdPiano.addRest('eighth');
+        thirdPiano.addRest('quarter');
+        thirdPiano.addRest('half');
+
+        /**
+         * Chorus
+         */
+
+        // Bar 1
+        firstPiano.repeatStart();
+        firstPiano.addNote('C5', 'eighth');
+        firstPiano.addRest('eighth');
+        firstPiano.addRest('eighth');
+        firstPiano.addNote('G4', 'eighth');
+        firstPiano.addRest('quarter');
+        firstPiano.addNote('E4', 'eighth');
+        firstPiano.addRest('eighth');
+
+        secondPiano.repeatStart();
+        secondPiano.addNote('E4', 'eighth');
+        secondPiano.addRest('eighth');
+        secondPiano.addRest('eighth');
+        secondPiano.addNote('C3', 'eighth');
+        secondPiano.addRest('quarter');
+        secondPiano.addNote('G3', 'eighth');
+        secondPiano.addRest('eighth');
+
+        thirdPiano.repeatStart();
+        thirdPiano.addRest('whole');
+
+        // Bar 2
+        firstPiano.addRest('eighth');
+        firstPiano.addNote('A4', 'eighth');
+        firstPiano.addRest('eighth');
+        firstPiano.addNote('B4', 'eighth');
+        firstPiano.addRest('eighth');
+        firstPiano.addNote('Bb4', 'eighth');
+        firstPiano.addNote('A4', 'eighth');
+        firstPiano.addRest('eighth');
+
+        secondPiano.addRest('eighth');
+        secondPiano.addNote('C3', 'eighth');
+        secondPiano.addRest('eighth');
+        secondPiano.addNote('D4', 'eighth');
+        secondPiano.addRest('eighth');
+        secondPiano.addNote('Db4', 'eighth');
+        secondPiano.addNote('C3', 'eighth');
+        secondPiano.addRest('eighth');
+
+        thirdPiano.addRest('whole');
+
+        // Bar 3
+        firstPiano.addNote('G4', 'tripletQuarter');
+        firstPiano.addNote('E5', 'tripletQuarter');
+        firstPiano.addNote('G5', 'tripletQuarter');
+        firstPiano.addNote('A5', 'eighth');
+        firstPiano.addRest('eighth');
+        firstPiano.addNote('F5', 'eighth');
+        firstPiano.addNote('G5', 'eighth');
+
+        secondPiano.addNote('C4', 'tripletQuarter');
+        secondPiano.addNote('G4', 'tripletQuarter');
+        secondPiano.addNote('B4', 'tripletQuarter');
+        secondPiano.addNote('C5', 'eighth');
+        secondPiano.addRest('eighth');
+        secondPiano.addNote('A4', 'eighth');
+        secondPiano.addNote('B4', 'eighth');
+        thirdPiano.addRest('whole');
+
+        // Bar 4
+        firstPiano.addRest('eighth');
+        firstPiano.addNote('E5', 'eighth');
+        firstPiano.addRest('eighth');
+        firstPiano.addNote('C5', 'eighth');
+        firstPiano.addNote('D5', 'eighth');
+        firstPiano.addNote('B4', 'eighth');
+        firstPiano.addRest('quarter');
+        firstPiano.repeat();
+
+        secondPiano.addRest('eighth');
+        secondPiano.addNote('G4', 'eighth');
+        secondPiano.addRest('eighth');
+        secondPiano.addNote('E4', 'eighth');
+        secondPiano.addNote('F4', 'eighth');
+        secondPiano.addNote('D4', 'eighth');
+        secondPiano.addRest('quarter');
+        secondPiano.repeat();
+
+        thirdPiano.addRest('whole');
+        thirdPiano.repeat();
+
+        /**
+         * Bridge
+         */
+        // Bar 1
+        firstPiano.addRest('quarter');
+        firstPiano.addNote('G5', 'eighth');
+        firstPiano.addNote('Gb5', 'eighth');
+        firstPiano.addNote('F5', 'eighth');
+        firstPiano.addNote('D#5', 'eighth');
+        firstPiano.addRest('eighth');
+        firstPiano.addNote('E5', 'eighth');
+
+        secondPiano.addRest('quarter');
+        secondPiano.addNote('E5', 'eighth');
+        secondPiano.addNote('Eb5', 'eighth');
+        secondPiano.addNote('D5', 'eighth');
+        secondPiano.addNote('B4', 'eighth');
+        secondPiano.addRest('eighth');
+        secondPiano.addNote('C5', 'eighth');
+
+        thirdPiano.addRest('whole');
+
+        // Bar 2
+        firstPiano.addRest('eighth');
+        firstPiano.addNote('G#4', 'eighth');
+        firstPiano.addNote('A4', 'eighth');
+        firstPiano.addNote('C5', 'eighth');
+        firstPiano.addRest('eighth');
+        firstPiano.addNote('A4', 'eighth');
+        firstPiano.addNote('C5', 'eighth');
+        firstPiano.addNote('D5', 'eighth');
+
+        secondPiano.addRest('eighth');
+        secondPiano.addNote('E4', 'eighth');
+        secondPiano.addNote('F4', 'eighth');
+        secondPiano.addNote('A4', 'eighth');
+        secondPiano.addRest('eighth');
+        secondPiano.addNote('C3', 'eighth');
+        secondPiano.addNote('E4', 'eighth');
+        secondPiano.addNote('F4', 'eighth');
+
+        thirdPiano.addRest('whole');
+
+        // Bar 3
+        firstPiano.addRest('quarter');
+        firstPiano.addNote('G5', 'eighth');
+        firstPiano.addNote('Gb5', 'eighth');
+        firstPiano.addNote('F5', 'eighth');
+        firstPiano.addNote('D#5', 'eighth');
+        firstPiano.addRest('eighth');
+        firstPiano.addNote('E5', 'eighth');
+
+        secondPiano.addRest('quarter');
+        secondPiano.addNote('E5', 'eighth');
+        secondPiano.addNote('Eb5', 'eighth');
+        secondPiano.addNote('D5', 'eighth');
+        secondPiano.addNote('B4', 'eighth');
+        secondPiano.addRest('eighth');
+        secondPiano.addNote('C5', 'eighth');
+
+        thirdPiano.addRest('whole');
+
+        // Bar 4
+        firstPiano.addRest('eighth');
+        firstPiano.addNote('C6', 'eighth');
+        firstPiano.addRest('eighth');
+        firstPiano.addNote('C6', 'eighth');
+        firstPiano.addNote('C6', 'eighth');
+
+        secondPiano.addRest('eighth');
+        secondPiano.addNote('G6', 'eighth');
+        secondPiano.addRest('eighth');
+        secondPiano.addNote('G6', 'eighth');
+        secondPiano.addNote('G6', 'eighth');
+
+        thirdPiano.addRest('eighth');
+        thirdPiano.addNote('F6', 'eighth');
+        thirdPiano.addRest('eighth');
+        thirdPiano.addNote('F6', 'eighth');
+        thirdPiano.addNote('F6', 'eighth');
+
+
+        // Bar 5
+        firstPiano.addRest('quarter');
+        firstPiano.addNote('G5', 'eighth');
+        firstPiano.addNote('Gb5', 'eighth');
+        firstPiano.addNote('F5', 'eighth');
+        firstPiano.addNote('D#5', 'eighth');
+        firstPiano.addRest('eighth');
+        firstPiano.addNote('E5', 'eighth');
+
+        secondPiano.addRest('quarter');
+        secondPiano.addNote('E5', 'eighth');
+        secondPiano.addNote('Eb5', 'eighth');
+        secondPiano.addNote('D5', 'eighth');
+        secondPiano.addNote('B4', 'eighth');
+        secondPiano.addRest('eighth');
+        secondPiano.addNote('C5', 'eighth');
+
+        thirdPiano.addRest('whole');
+
+        // Bar 6
+        firstPiano.addRest('eighth');
+        firstPiano.addNote('G#4', 'eighth');
+        firstPiano.addNote('A4', 'eighth');
+        firstPiano.addNote('C5', 'eighth');
+        firstPiano.addRest('eighth');
+        firstPiano.addNote('A4', 'eighth');
+        firstPiano.addNote('C5', 'eighth');
+        firstPiano.addNote('D5', 'eighth');
+
+        secondPiano.addRest('eighth');
+        secondPiano.addNote('E4', 'eighth');
+        secondPiano.addNote('F4', 'eighth');
+        secondPiano.addNote('A4', 'eighth');
+        secondPiano.addRest('eighth');
+        secondPiano.addNote('C3', 'eighth');
+        secondPiano.addNote('E4', 'eighth');
+        secondPiano.addNote('F4', 'eighth');
+
+        thirdPiano.addRest('whole');
+
+        // Bar 7
+        firstPiano.addRest('quarter');
+        firstPiano.addNote('Eb5', 'eighth');
+        firstPiano.addRest('eighth');
+        firstPiano.addRest('eighth');
+        firstPiano.addNote('D5', 'eighth');
+        firstPiano.addRest('quarter');
+
+        secondPiano.addRest('quarter');
+        secondPiano.addNote('Ab4', 'eighth');
+        secondPiano.addRest('eighth');
+        secondPiano.addRest('eighth');
+        secondPiano.addNote('F4', 'eighth');
+        secondPiano.addRest('quarter');
+
+        thirdPiano.addRest('whole');
+
+        // Bar 8
+        firstPiano.addNote('C5', 'eighth');
+        firstPiano.addRest('eighth');
+        firstPiano.addRest('quarter');
+        firstPiano.addRest('half');
+
+        secondPiano.addNote('E4', 'eighth');
+        secondPiano.addRest('eighth');
+        secondPiano.addRest('quarter');
+        secondPiano.addRest('half');
+
+        thirdPiano.addRest('whole');
+
+
+        firstPiano.finish();
+        secondPiano.finish();
+        thirdPiano.finish();
+
+        gameMusic.end();
+
+    </script>
+</head>
+<body>
+<h4><strong>Only works in latest chrome or safari!</strong></h4>
+<button onclick="gameMusic.play()">Play</button>
+</body>
+</html>
