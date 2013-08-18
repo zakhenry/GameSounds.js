@@ -45,6 +45,8 @@
 
                 }
 
+
+
                 var initClock = Date.now();
 
                 function modifyPitch(clock, count, flip){
@@ -76,7 +78,6 @@
 
                     count ++;
 
-                    console.log(detune);
 
                     clock = Date.now();
                     setTimeout('modifyPitch('+clock+', '+count+', '+flip+')', detune/1.8);
@@ -84,12 +85,33 @@
 
 
 
-                modifyPitch(initClock, 0, 1);
+//                modifyPitch(initClock, 0, 1);
+//
+//                audio.addNote(120.3, 2);
+//                audio.addNote(125.1, 2);
+//                audio.addNote(128.7, 2);
+//                audio.addNote(700, 4);
 
-            audio.addNote(120.3, 2);
-            audio.addNote(125.1, 2);
-            audio.addNote(128.7, 2);
-            audio.addNote(700, 4);
+
+                themeTune = {
+                    data:  [
+                        [[300, 100, 1]], //freq, duration, waveform
+                        [[100, 100, 1], [200, 100, 1]],
+                        [[0, 100, 1]]
+                    ], //not actually the theme tune, just a queueing test
+                    intervalId: null,
+                    startTime: null,
+                    update: function(){
+                        console.log('updating tune');
+                    },
+                    start :  function(){
+                        this.intervalId = setInterval('themeTune.update()', 10);
+                        this.startTime = Date.now();
+                    },
+                    stop: function(){
+                        clearInterval(this.intervalId);
+                    }
+                }
 
 
 
