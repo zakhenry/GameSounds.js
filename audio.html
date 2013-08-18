@@ -95,14 +95,41 @@
 
                 themeTune = {
                     data:  [
-                        [[300, 100, 1]], //freq, duration, waveform
-                        [[100, 100, 1], [200, 100, 1]],
-                        [[0, 100, 1]]
+                        [[300, 1]], //freq, waveform
+                        [[100, 1], [200, 1]],
+                        [[0, 1]]
                     ], //not actually the theme tune, just a queueing test
                     intervalId: null,
                     startTime: null,
+                    speed: 1000, // millis per beat,
+                    queue: [],
+                    currentNotePoint: -1,
                     update: function(){
                         console.log('updating tune');
+
+                        var currentPoint = Math.floor((Date.now() - this.startTime) / this.speed); //the array id of the dataset to play
+
+                        if (this.currentNotePoint != currentPoint){
+
+                            console.log('changing to new note set: ', currentPoint);
+
+                            if (currentPoint != 0){
+                                this.stopNoteSet(currentPoint - 1);
+                            }
+                            if (currentPoint != this.data.length){
+                                this.playNoteSet(currentPoint);
+                            }else{ //tune end reached, restarting
+                                console.log('tune end reached, restarting');
+                                this.playNoteSet(0);
+                                this.startTime = Date.now();
+                            }
+
+
+
+                            this.currentNotePoint = currentPoint;
+
+
+                        }
                     },
                     start :  function(){
                         this.intervalId = setInterval('themeTune.update()', 10);
@@ -110,6 +137,12 @@
                     },
                     stop: function(){
                         clearInterval(this.intervalId);
+                    },
+                    playNoteSet: function(setId){
+                        console.log('starting: ', this.data[setId]);
+                    },
+                    stopNoteSet: function(setId){
+                        console.log('stopping: ', this.data[setId]);
                     }
                 }
 
