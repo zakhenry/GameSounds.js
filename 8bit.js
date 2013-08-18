@@ -81,24 +81,29 @@ var EightBit = (function() {
 
                     /**
                      * Add a note to an instrument
-                     * @param pitch
+                     * @param pitch - Comma separated string if more than one note
                      * @param note
                      * @param [tie]
                      */
                     this.addNote = function(pitch, note, tie) {
-                        if (typeof pitches[pitch] === 'undefined') {
-                            throw new Error(pitch + ' is not a valid pitch.');
-                        }
-
                         if (typeof notes[note] === 'undefined') {
                             throw new Error(note + ' is not a correct note.');
                         }
 
                         var duration = getDuration(note);
 
+                        var checkPitches = pitch.split(',');
+
+                        checkPitches.forEach(function(p) {
+                            p = p.trim();
+                            if (typeof pitches[p] === 'undefined') {
+                                throw new Error(p + ' is not a valid pitch.');
+                            }
+                        });
+
                         notesBuffer.push({
                             volume: volumeLevel,
-                            pitch: pitches[pitch],
+                            pitch: pitch,
                             pitchType: pitchType,
                             startTime: currentTime,
                             tie: tie,
@@ -195,27 +200,36 @@ var EightBit = (function() {
         this.end = function() {
             oscillators = [];
             for (var i = 0; i < allNotesBuffer.length; i++) {
-                var o = ac.createOscillator(),
-                    volume = ac.createGainNode();
+                var pitch = allNotesBuffer[i].pitch;
 
-                // Connect volume gain to the context;
-                volume.connect(ac.destination);
-
-                if (allNotesBuffer[i].pitch === false) {
-                    o.connect(muteGain);
-                } else {
-                    // Set the volume for this note
-                    volume.gain.value = allNotesBuffer[i].volume;
-                    o.connect(volume);
+                if (! pitch) {
+                    pitch = '0';
                 }
 
-                o.type = allNotesBuffer[i].pitchType;
-                o.frequency.value = allNotesBuffer[i].pitch ? allNotesBuffer[i].pitch : 0;
+                pitch.split(',').forEach(function(p) {
+                    p = p.trim();
+                    var o = ac.createOscillator(),
+                        volume = ac.createGainNode();
 
-                oscillators.push({
-                    startTime: allNotesBuffer[i].startTime,
-                    stopTime: allNotesBuffer[i].stopTime,
-                    o: o
+                    // Connect volume gain to the context;
+                    volume.connect(ac.destination);
+
+                    if (p === false) {
+                        o.connect(muteGain);
+                    } else {
+                        // Set the volume for this note
+                        volume.gain.value = allNotesBuffer[i].volume;
+                        o.connect(volume);
+                    }
+
+                    o.type = allNotesBuffer[i].pitchType;
+                    o.frequency.value = p !== '0' ? pitches[p] : 0;
+
+                    oscillators.push({
+                        startTime: allNotesBuffer[i].startTime,
+                        stopTime: allNotesBuffer[i].stopTime,
+                        o: o
+                    });
                 });
             }
         };
