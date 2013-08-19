@@ -8,28 +8,27 @@ var EightBit = (function() {
     var
         // Notes and their BPM numerator
         notes = {
-            whole: 240,
-            dottedHalf: 180,
-            half: 120,
-            dottedQuarter: 90,
-            quarter: 60,
-            dottedEighth: 45,
-            tripletQuarter: 40,
-            eighth: 30,
-            dottedSixteenth: 22.5,
-            tripletEighth: 20,
-            sixteenth: 15,
-            tripletSixteenth: 10,
-            thirtySecond: 7.5
+            whole: 1,
+            dottedHalf: 0.75,
+            half: 0.5,
+            dottedQuarter: 0.375,
+            quarter: 0.25,
+            dottedEighth: 0.1875,
+            tripletQuarter: 0.166666667,
+            eighth: 0.125,
+            dottedSixteenth: 0.09375,
+            tripletEighth: 0.083333333,
+            sixteenth: 0.0625,
+            tripletSixteenth: 0.041666667,
+            thirtySecond: 0.03125
         },
         // Pitch frequencies with corresponding names
         pitches = {'C3': 130.81,'C#3': 138.59,'Db3': 138.59,'D3': 146.83,'D#3': 155.56,'Eb3': 155.56,'E3': 164.81,'F3': 174.61,'F#3': 185.00,'Gb3': 185.00,'G3': 196.00,'G#3': 207.65,'Ab3': 207.65,'A3': 220.00,'A#3': 233.08,'Bb3': 233.08,'B3': 246.94,'C4': 261.63,'C#4': 277.18,'Db4': 277.18,'D4': 293.66,'D#4': 311.13,'Eb4': 311.13,'E4': 329.63,'F4': 349.23,'F#4': 369.99,'Gb4': 369.99,'G4': 392.00,'G#4': 415.30,'Ab4': 415.30,'A4': 440.00,'A#4': 466.16,'Bb4': 466.16,'B4': 493.88,'C5': 523.25,'C#5': 554.37,'Db5': 554.37,'D5': 587.33,'D#5': 622.25,'Eb5': 622.25,'E5': 659.26,'F5': 698.46,'F#5': 739.99,'Gb5': 739.99,'G5': 783.99,'G#5': 830.61,'Ab5': 830.61,'A5': 880.00,'A#5': 932.33,'Bb5': 932.33,'B5': 987.77,'C6': 1046.50,'C#6': 1108.73,'Db6': 1108.73,'D6': 1174.66,'D#6': 1244.51,'Eb6': 1244.51,'E6': 1318.51,'F6': 1396.91,'F#6': 1479.98,'Gb6': 1479.98,'G6': 1567.98,'G#6': 1661.22,'Ab6': 1661.22,'A6': 1760.00,'A#6': 1864.66,'Bb6': 1864.66,'B6': 1975.53,'C7': 2093.00,'C#7': 2217.46,'Db7': 2217.46,'D7': 2349.32,'D#7': 2489.02,'Eb7': 2489.02,'E7': 2637.02,'F7': 2793.83,'F#7': 2959.96,'Gb7': 2959.96,'G7': 3135.96,'G#7': 3322.44,'Ab7': 3322.44,'A7': 3520.00,'A#7': 3729.31,'Bb7': 3729.31,'B7': 3951.07,'C8': 4186.01},
         // Used when parsing the time signature
         signatureToNote = {
-            2: 'half',
-            4: 'quarter',
-            8: 'eighth',
-            16: 'sixteenth'
+            2: 6,
+            4: 3,
+            8: 4.50
         },
         // Different waveforms that are supported
         waveforms = {
@@ -46,15 +45,15 @@ var EightBit = (function() {
     function cls() {
         var ac = new (window.AudioContext || window.webkitAudioContext),
             muteGain = ac.createGainNode(),
-            beatLength,
+            beatsPerBar,
+            noteGetsBeat,
             tempo,
             allNotesBuffer = [],
             oscillators = [],
-            articulationGap = .065,
             /**
              * Instrument Class
              */
-            Instrument = (function() {
+                Instrument = (function() {
                 /**
                  * Constructor
                  * @param [waveform]
@@ -73,7 +72,7 @@ var EightBit = (function() {
                         volumeLevel = .25,
                         pitchType = waveforms[waveform],
                         notesBuffer = []
-                    ;
+                        ;
 
                     this.setVolume = function(newVolumeLevel) {
                         volumeLevel = newVolumeLevel;
@@ -90,7 +89,8 @@ var EightBit = (function() {
                             throw new Error(note + ' is not a correct note.');
                         }
 
-                        var duration = getDuration(note);
+                        var duration = getDuration(note),
+                            articulationGap = tie ? 0 : duration * 0.1;
 
                         var checkPitches = pitch.split(',');
 
@@ -105,9 +105,10 @@ var EightBit = (function() {
                             volume: volumeLevel,
                             pitch: pitch,
                             pitchType: pitchType,
+                            duration: duration,
+                            articulationGap: articulationGap,
                             startTime: currentTime,
-                            tie: tie,
-                            stopTime: currentTime + duration - (tie ? 0 : articulationGap)
+                            stopTime: currentTime + duration - articulationGap
                         });
 
                         currentTime += duration;
@@ -126,16 +127,17 @@ var EightBit = (function() {
                         var duration = getDuration(note);
 
                         notesBuffer.push({
+                            volume: volumeLevel,
                             pitch: false,
                             pitchType: 0,
+                            duration: duration,
+                            articulationGap: 0,
                             startTime: currentTime,
-                            tie: true,
                             stopTime: currentTime + duration
                         });
 
                         currentTime += duration;
                     };
-
 
                     /**
                      * Place where a repeat section should start
@@ -154,14 +156,15 @@ var EightBit = (function() {
                             var copyNotesBuffer = notesBuffer.slice(lastRepeatCount);
                             lastRepeatCount = copyNotesBuffer.length;
                             for (var i = 0; i < copyNotesBuffer.length; i++) {
-                                var noteCopy = clone(copyNotesBuffer[i]),
-                                    duration = noteCopy.stopTime - noteCopy.startTime + (noteCopy.tie ? 0 : articulationGap);
+                                var noteCopy = clone(copyNotesBuffer[i]);
+
                                 noteCopy.startTime = currentTime;
-                                noteCopy.stopTime = currentTime + duration - (noteCopy.tie ? 0 : articulationGap);
+                                noteCopy.stopTime = currentTime + noteCopy.duration - noteCopy.articulationGap;
 
                                 copyNotesBuffer[i] = noteCopy;
-                                currentTime += duration;
+                                currentTime += noteCopy.duration;
                             }
+
 
                             notesBuffer = notesBuffer.concat(copyNotesBuffer);
                         }
@@ -177,7 +180,7 @@ var EightBit = (function() {
 
                 return cls;
             })()
-        ;
+            ;
 
 
         // Setup mute gain and connect to the context;
@@ -245,9 +248,8 @@ var EightBit = (function() {
                 throw new Error('The bottom time signature is not supported.');
             }
 
-            var note = signatureToNote[bottom];
-
-            beatLength = (60 / notes[note]) * (top / bottom);
+            beatsPerBar = top;
+            noteGetsBeat = signatureToNote[bottom];
         };
 
         /**
@@ -256,7 +258,7 @@ var EightBit = (function() {
          * @param t
          */
         this.setTempo = function(t) {
-            tempo = t;
+            tempo = 60 / t;
         };
 
         /**
@@ -267,7 +269,7 @@ var EightBit = (function() {
                 var o = oscillators[i].o,
                     startTime = oscillators[i].startTime,
                     stopTime = oscillators[i].stopTime
-                ;
+                    ;
 
                 o.noteOn(startTime + ac.currentTime);
                 o.noteOff(stopTime + ac.currentTime);
@@ -289,7 +291,7 @@ var EightBit = (function() {
          * @returns {number}
          */
         function getDuration(note) {
-            return (notes[note] / tempo) * beatLength;
+            return notes[note] * tempo / noteGetsBeat * 10;
         }
     }
 
