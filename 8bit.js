@@ -67,7 +67,8 @@ var EightBit = (function() {
                         waveform = 'sine';
                     }
 
-                    var currentTime = 0,
+                    var self = this,
+                        currentTime = 0,
                         lastRepeatCount = 0,
                         volumeLevel = .25,
                         pitchType = waveforms[waveform],
@@ -144,6 +145,14 @@ var EightBit = (function() {
                      */
                     this.repeatStart = function() {
                         lastRepeatCount = notesBuffer.length;
+                    };
+
+                    /**
+                     * Repeat from beginning
+                     */
+                    this.repeatFromBeginning = function(numOfRepeats) {
+                        lastRepeatCount = 0;
+                        self.repeat(numOfRepeats);
                     };
 
                     /**
