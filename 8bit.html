@@ -1,161 +1,197 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" ng-app="app">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>8bit Sounds</title>
+    <script src="http://code.angularjs.org/1.2.0rc1/angular.min.js"></script>
     <script src="8bit.js"></script>
     <script>
-        var gameMusic = new EightBit();
+        var app = angular.module('app', []);
+        app.controller('AppController', function($scope) {
+            var gameMusic = new EightBit();
 
-        gameMusic.setTimeSignature(4, 4);
-        gameMusic.setTempo(200);
+            gameMusic.setTimeSignature(4, 4);
+            gameMusic.setTempo(200);
 
-        var firstPiano = gameMusic.createInstrument('square');
+            var firstPiano = gameMusic.createInstrument('square');
 
-        /**
-         * Intro
-         */
-        // Bar 1
-        firstPiano.addNote('E5, F#4', 'eighth');
-        firstPiano.addNote('E5, F#4', 'eighth');
-        firstPiano.addRest('eighth');
-        firstPiano.addNote('E5, F#4', 'eighth');
-        firstPiano.addRest('eighth');
-        firstPiano.addNote('C5, F#4', 'eighth');
-        firstPiano.addNote('E5, F#4', 'eighth');
-        firstPiano.addRest('eighth');
+            /**
+             * Intro
+             */
+                // Bar 1
+            firstPiano.addNote('E5, F#4', 'eighth');
+            firstPiano.addNote('E5, F#4', 'eighth');
+            firstPiano.addRest('eighth');
+            firstPiano.addNote('E5, F#4', 'eighth');
+            firstPiano.addRest('eighth');
+            firstPiano.addNote('C5, F#4', 'eighth');
+            firstPiano.addNote('E5, F#4', 'eighth');
+            firstPiano.addRest('eighth');
 
-        // Bar 2
-        firstPiano.addNote('G5, B4, G4', 'eighth');
-        firstPiano.addRest('eighth');
-        firstPiano.addRest('quarter');
-        firstPiano.addNote('G4', 'eighth');
-        firstPiano.addRest('eighth');
-        firstPiano.addRest('quarter');
+            // Bar 2
+            firstPiano.addNote('G5, B4, G4', 'eighth');
+            firstPiano.addRest('eighth');
+            firstPiano.addRest('quarter');
+            firstPiano.addNote('G4', 'eighth');
+            firstPiano.addRest('eighth');
+            firstPiano.addRest('quarter');
 
-        /**
-         * Chorus
-         */
+            /**
+             * Chorus
+             */
 
-        // Bar 1
-        firstPiano.repeatStart();
-        firstPiano.addNote('C5, E4', 'eighth');
-        firstPiano.addRest('eighth');
-        firstPiano.addRest('eighth');
-        firstPiano.addNote('G4, C3', 'eighth');
-        firstPiano.addRest('quarter');
-        firstPiano.addNote('E4, G3', 'eighth');
-        firstPiano.addRest('eighth');
+                // Bar 1
+            firstPiano.repeatStart();
+            firstPiano.addNote('C5, E4', 'eighth');
+            firstPiano.addRest('eighth');
+            firstPiano.addRest('eighth');
+            firstPiano.addNote('G4, C3', 'eighth');
+            firstPiano.addRest('quarter');
+            firstPiano.addNote('E4, G3', 'eighth');
+            firstPiano.addRest('eighth');
 
-        // Bar 2
-        firstPiano.addRest('eighth');
-        firstPiano.addNote('A4, C3', 'eighth');
-        firstPiano.addRest('eighth');
-        firstPiano.addNote('B4, D4', 'eighth');
-        firstPiano.addRest('eighth');
-        firstPiano.addNote('Bb4, Db4', 'eighth');
-        firstPiano.addNote('A4, C3', 'eighth');
-        firstPiano.addRest('eighth');
+            // Bar 2
+            firstPiano.addRest('eighth');
+            firstPiano.addNote('A4, C3', 'eighth');
+            firstPiano.addRest('eighth');
+            firstPiano.addNote('B4, D4', 'eighth');
+            firstPiano.addRest('eighth');
+            firstPiano.addNote('Bb4, Db4', 'eighth');
+            firstPiano.addNote('A4, C3', 'eighth');
+            firstPiano.addRest('eighth');
 
-        // Bar 3
-        firstPiano.addNote('G4, C4', 'tripletQuarter');
-        firstPiano.addNote('E5, G4', 'tripletQuarter');
-        firstPiano.addNote('G5, B4', 'tripletQuarter');
-        firstPiano.addNote('A5, C5', 'eighth');
-        firstPiano.addRest('eighth');
-        firstPiano.addNote('F5, A4', 'eighth');
-        firstPiano.addNote('G5, B4', 'eighth');
+            // Bar 3
+            firstPiano.addNote('G4, C4', 'tripletQuarter');
+            firstPiano.addNote('E5, G4', 'tripletQuarter');
+            firstPiano.addNote('G5, B4', 'tripletQuarter');
+            firstPiano.addNote('A5, C5', 'eighth');
+            firstPiano.addRest('eighth');
+            firstPiano.addNote('F5, A4', 'eighth');
+            firstPiano.addNote('G5, B4', 'eighth');
 
-        // Bar 4
-        firstPiano.addRest('eighth');
-        firstPiano.addNote('E5, G4', 'eighth');
-        firstPiano.addRest('eighth');
-        firstPiano.addNote('C5, E4', 'eighth');
-        firstPiano.addNote('D5, F4', 'eighth');
-        firstPiano.addNote('B4, D4', 'eighth');
-        firstPiano.addRest('quarter');
-        firstPiano.repeat();
+            // Bar 4
+            firstPiano.addRest('eighth');
+            firstPiano.addNote('E5, G4', 'eighth');
+            firstPiano.addRest('eighth');
+            firstPiano.addNote('C5, E4', 'eighth');
+            firstPiano.addNote('D5, F4', 'eighth');
+            firstPiano.addNote('B4, D4', 'eighth');
+            firstPiano.addRest('quarter');
+            firstPiano.repeat();
 
-        /**
-         * Bridge
-         */
-        // Bar 1
-        firstPiano.addRest('quarter');
-        firstPiano.addNote('G5, E5', 'eighth');
-        firstPiano.addNote('Gb5, Eb5', 'eighth');
-        firstPiano.addNote('F5, D5', 'eighth');
-        firstPiano.addNote('D#5, B4', 'eighth');
-        firstPiano.addRest('eighth');
-        firstPiano.addNote('E5, C5', 'eighth');
+            /**
+             * Bridge
+             */
+                // Bar 1
+            firstPiano.addRest('quarter');
+            firstPiano.addNote('G5, E5', 'eighth');
+            firstPiano.addNote('Gb5, Eb5', 'eighth');
+            firstPiano.addNote('F5, D5', 'eighth');
+            firstPiano.addNote('D#5, B4', 'eighth');
+            firstPiano.addRest('eighth');
+            firstPiano.addNote('E5, C5', 'eighth');
 
-        // Bar 2
-        firstPiano.addRest('eighth');
-        firstPiano.addNote('G#4, E4', 'eighth');
-        firstPiano.addNote('A4, F4', 'eighth');
-        firstPiano.addNote('C5, A4', 'eighth');
-        firstPiano.addRest('eighth');
-        firstPiano.addNote('A4, C3', 'eighth');
-        firstPiano.addNote('C5, E4', 'eighth');
-        firstPiano.addNote('D5, F4', 'eighth');
+            // Bar 2
+            firstPiano.addRest('eighth');
+            firstPiano.addNote('G#4, E4', 'eighth');
+            firstPiano.addNote('A4, F4', 'eighth');
+            firstPiano.addNote('C5, A4', 'eighth');
+            firstPiano.addRest('eighth');
+            firstPiano.addNote('A4, C3', 'eighth');
+            firstPiano.addNote('C5, E4', 'eighth');
+            firstPiano.addNote('D5, F4', 'eighth');
 
-        // Bar 3
-        firstPiano.addRest('quarter');
-        firstPiano.addNote('G5, E5', 'eighth');
-        firstPiano.addNote('Gb5, Eb5', 'eighth');
-        firstPiano.addNote('F5, D5', 'eighth');
-        firstPiano.addNote('D#5, B4', 'eighth');
-        firstPiano.addRest('eighth');
-        firstPiano.addNote('E5, C5', 'eighth');
+            // Bar 3
+            firstPiano.addRest('quarter');
+            firstPiano.addNote('G5, E5', 'eighth');
+            firstPiano.addNote('Gb5, Eb5', 'eighth');
+            firstPiano.addNote('F5, D5', 'eighth');
+            firstPiano.addNote('D#5, B4', 'eighth');
+            firstPiano.addRest('eighth');
+            firstPiano.addNote('E5, C5', 'eighth');
 
-        // Bar 4
-        firstPiano.addRest('eighth');
-        firstPiano.addNote('C6, G6, F6', 'eighth');
-        firstPiano.addRest('eighth');
-        firstPiano.addNote('C6, G6, F6', 'eighth');
-        firstPiano.addNote('C6, G6, F6', 'eighth');
+            // Bar 4
+            firstPiano.addRest('eighth');
+            firstPiano.addNote('C6, G6, F6', 'eighth');
+            firstPiano.addRest('eighth');
+            firstPiano.addNote('C6, G6, F6', 'eighth');
+            firstPiano.addNote('C6, G6, F6', 'eighth');
 
-        // Bar 5
-        firstPiano.addRest('quarter');
-        firstPiano.addNote('G5, E5', 'eighth');
-        firstPiano.addNote('Gb5, Eb5', 'eighth');
-        firstPiano.addNote('F5, D5', 'eighth');
-        firstPiano.addNote('D#5, B4', 'eighth');
-        firstPiano.addRest('eighth');
-        firstPiano.addNote('E5, C5', 'eighth');
+            // Bar 5
+            firstPiano.addRest('quarter');
+            firstPiano.addNote('G5, E5', 'eighth');
+            firstPiano.addNote('Gb5, Eb5', 'eighth');
+            firstPiano.addNote('F5, D5', 'eighth');
+            firstPiano.addNote('D#5, B4', 'eighth');
+            firstPiano.addRest('eighth');
+            firstPiano.addNote('E5, C5', 'eighth');
 
-        // Bar 6
-        firstPiano.addRest('eighth');
-        firstPiano.addNote('G#4, E4', 'eighth');
-        firstPiano.addNote('A4, F4', 'eighth');
-        firstPiano.addNote('C5, A4', 'eighth');
-        firstPiano.addRest('eighth');
-        firstPiano.addNote('A4, C3', 'eighth');
-        firstPiano.addNote('C5, E4', 'eighth');
-        firstPiano.addNote('D5, F4', 'eighth');
+            // Bar 6
+            firstPiano.addRest('eighth');
+            firstPiano.addNote('G#4, E4', 'eighth');
+            firstPiano.addNote('A4, F4', 'eighth');
+            firstPiano.addNote('C5, A4', 'eighth');
+            firstPiano.addRest('eighth');
+            firstPiano.addNote('A4, C3', 'eighth');
+            firstPiano.addNote('C5, E4', 'eighth');
+            firstPiano.addNote('D5, F4', 'eighth');
 
-        // Bar 7
-        firstPiano.addRest('quarter');
-        firstPiano.addNote('Eb5, Ab4', 'eighth');
-        firstPiano.addRest('eighth');
-        firstPiano.addRest('eighth');
-        firstPiano.addNote('D5, F4', 'eighth');
-        firstPiano.addRest('quarter');
+            // Bar 7
+            firstPiano.addRest('quarter');
+            firstPiano.addNote('Eb5, Ab4', 'eighth');
+            firstPiano.addRest('eighth');
+            firstPiano.addRest('eighth');
+            firstPiano.addNote('D5, F4', 'eighth');
+            firstPiano.addRest('quarter');
 
-        // Bar 8
-        firstPiano.addNote('C5, E4', 'eighth');
-        firstPiano.addRest('eighth');
-        firstPiano.addRest('quarter');
-        firstPiano.addRest('half');
-        firstPiano.repeatFromBeginning();
-        firstPiano.finish();
+            // Bar 8
+            firstPiano.addNote('C5, E4', 'eighth');
+            firstPiano.addRest('eighth');
+            firstPiano.addRest('quarter');
+            firstPiano.addRest('half');
+            firstPiano.repeatFromBeginning();
+            firstPiano.finish();
 
-        gameMusic.end();
+            gameMusic.end();
 
+            $scope.playing = false;
+            $scope.paused = false;
+            $scope.muted = false;
+
+            $scope.play = function() {
+                $scope.playing = true;
+                $scope.paused = false;
+                gameMusic.play();
+            };
+
+            $scope.mute = function() {
+                if ($scope.muted) {
+                    gameMusic.unmute();
+                } else {
+                    gameMusic.mute();
+                }
+                $scope.muted = ! $scope.muted;
+            };
+
+            $scope.stop = function() {
+                $scope.playing = false;
+                gameMusic.stop();
+            };
+
+
+            $scope.pause = function() {
+                $scope.paused = true;
+                gameMusic.pause();
+            }
+        });
     </script>
 </head>
-<body>
+<body ng-controller="AppController">
 <h4><strong>Only works in latest chrome or safari!</strong></h4>
-<button onclick="gameMusic.play()">Play</button>
+<button ng-show="! playing || paused" ng-click="play()">Play</button>
+<button ng-show="! paused && playing" ng-click="pause()">Pause</button>
+<button ng-show="playing" ng-click="stop()">Stop</button>
+<button ng-show="playing" ng-click="mute()">{{ muted ? 'Unmute' : 'Mute' }}</button>
 </body>
 </html>

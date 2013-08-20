@@ -43,16 +43,20 @@ var EightBit = (function() {
      * Constructor
      */
     function cls() {
-        var ac = new (window.AudioContext || window.webkitAudioContext),
-            muteGain = ac.createGainNode(),
+        var self = this,
+            ac = new (window.AudioContext || window.webkitAudioContext),
+            muteGain = ac.createGain(),
+            masterVolume = ac.createGain(),
             beatsPerBar,
             noteGetsBeat,
             tempo,
             allNotesBuffer = [],
             oscillators = [],
-            /**
-             * Instrument Class
-             */
+            currentPlayTime,
+            totalPlayTime = 0,
+                /**
+                 * Instrument Class
+                 */
                 Instrument = (function() {
                 /**
                  * Constructor
@@ -70,7 +74,7 @@ var EightBit = (function() {
                     var self = this,
                         currentTime = 0,
                         lastRepeatCount = 0,
-                        volumeLevel = .25,
+                        volumeLevel = 0.25,
                         pitchType = waveforms[waveform],
                         notesBuffer = []
                         ;
@@ -189,12 +193,15 @@ var EightBit = (function() {
 
                 return cls;
             })()
-            ;
+        ;
 
-
-        // Setup mute gain and connect to the context;
+        // Setup mute gain and connect to the context
         muteGain.gain.value = 0;
         muteGain.connect(ac.destination);
+
+        // Setup master volume and connect to the context
+        masterVolume.gain.value = 1;
+        masterVolume.connect(ac.destination);
 
         /**
          * Create a new instrument
@@ -204,6 +211,38 @@ var EightBit = (function() {
          */
         this.createInstrument = function(waveform) {
             return new Instrument(waveform);
+        };
+
+        /**
+         * Stop playing all music and reset the Oscillators
+         */
+        this.stop = function(fadeOut) {
+            totalPlayTime = 0;
+            if (typeof fadeOut === 'undefined') {
+                fadeOut = true;
+            }
+            if (fadeOut) {
+                fade('down', function() {
+                    reset();
+                    self.unmute();
+                });
+            } else {
+                reset();
+            }
+        };
+
+        /**
+         * Mute all of the music
+         */
+        this.mute = function(cb) {
+            fade('down', cb);
+        };
+
+        /**
+         * Unmute all of the music
+         */
+        this.unmute = function(cb) {
+            fade('up', cb);
         };
 
         /**
@@ -221,10 +260,10 @@ var EightBit = (function() {
                 pitch.split(',').forEach(function(p) {
                     p = p.trim();
                     var o = ac.createOscillator(),
-                        volume = ac.createGainNode();
+                        volume = ac.createGain();
 
                     // Connect volume gain to the context;
-                    volume.connect(ac.destination);
+                    volume.connect(masterVolume);
 
                     if (p === false) {
                         o.connect(muteGain);
@@ -240,7 +279,8 @@ var EightBit = (function() {
                     oscillators.push({
                         startTime: allNotesBuffer[i].startTime,
                         stopTime: allNotesBuffer[i].stopTime,
-                        o: o
+                        o: o,
+                        volume: volume
                     });
                 });
             }
@@ -272,19 +312,34 @@ var EightBit = (function() {
 
         /**
          * Grabs all the oscillator notes and plays them
+         * It will use the total time played so far as an offset so you pause/play the music
          */
         this.play = function() {
+            currentPlayTime = ac.currentTime;
+
+            var timeOffset = ac.currentTime - totalPlayTime;
             for (var i = 0; oscillators.length > i; i++) {
                 var o = oscillators[i].o,
                     startTime = oscillators[i].startTime,
                     stopTime = oscillators[i].stopTime
-                    ;
-
-                o.noteOn(startTime + ac.currentTime);
-                o.noteOff(stopTime + ac.currentTime);
+                ;
+                o.start(startTime + timeOffset);
+                o.stop(stopTime + timeOffset);
             }
 
-            this.end();
+            if (totalPlayTime > 0) {
+                fade('up');
+            }
+        };
+
+        /**
+         * Pauses the music, resets the oscillators, gets the total time played so far
+         */
+        this.pause = function() {
+            totalPlayTime += ac.currentTime - currentPlayTime;
+            fade('down', function() {
+                reset();
+            });
         };
 
         // Default to 120 tempo
@@ -302,13 +357,52 @@ var EightBit = (function() {
         function getDuration(note) {
             return notes[note] * tempo / noteGetsBeat * 10;
         }
+
+        /**
+         * Helper function to stop all oscillators and recreate them
+         */
+        function reset() {
+            oscillators.forEach(function(osc) {
+                osc.o.stop(0);
+            });
+            self.end();
+        }
+
+        /**
+         * Helper function to fade up/down master volume
+         *
+         * @param direction - up or down
+         * @param [cb] - Callback function fired after the transition is completed
+         */
+        function fade(direction, cb) {
+            if ('up' !== direction && 'down' !== direction) {
+                throw new Error('Direction must be either up or down.');
+            }
+            var i = 100,
+                timeout = function() {
+                    setTimeout(function() {
+                        if (i > 0) {
+                            i = i - 2;
+                            var gain = 'up' === direction ? 100 - i : i;
+                            masterVolume.gain.value = gain / 100;
+                            timeout();
+                        } else {
+                            if (typeof cb === 'function') {
+                                cb();
+                            }
+                        }
+                    }, 1);
+                };
+
+            timeout();
+        }
     }
 
     /**
      * Helper function to clone an object
      *
      * @param obj
-     * @returns {obj}
+     * @returns {copy}
      */
     function clone(obj) {
         if (null == obj || "object" != typeof obj) return obj;
