@@ -4,7 +4,7 @@
  *
  * @author Cody Lundquist - 2013
  */
-var EightBit = (function() {
+EightBit = (function() {
     var
         // Notes and their BPM numerator
         notes = {
@@ -12,6 +12,7 @@ var EightBit = (function() {
             dottedHalf: 0.75,
             half: 0.5,
             dottedQuarter: 0.375,
+            tripletHalf: 0.33333334,
             quarter: 0.25,
             dottedEighth: 0.1875,
             tripletQuarter: 0.166666667,
@@ -47,6 +48,7 @@ var EightBit = (function() {
             ac = new (window.AudioContext || window.webkitAudioContext),
             muteGain = ac.createGain(),
             masterVolume = ac.createGain(),
+            masterVolumeLevel = 1,
             beatsPerBar,
             noteGetsBeat,
             tempo,
@@ -54,10 +56,11 @@ var EightBit = (function() {
             oscillators = [],
             currentPlayTime,
             totalPlayTime = 0,
-                /**
-                 * Instrument Class
-                 */
-                Instrument = (function() {
+            calculatedPlayTime = 0,
+            /**
+             * Instrument Class
+             */
+            Instrument = (function() {
                 /**
                  * Constructor
                  * @param [waveform]
@@ -168,18 +171,15 @@ var EightBit = (function() {
                         for (var r = 0; r < numOfRepeats; r++) {
                             var copyNotesBuffer = notesBuffer.slice(lastRepeatCount);
                             lastRepeatCount = copyNotesBuffer.length;
-                            for (var i = 0; i < copyNotesBuffer.length; i++) {
-                                var noteCopy = clone(copyNotesBuffer[i]);
+                            copyNotesBuffer.forEach(function(note) {
+                                var noteCopy = clone(note);
 
                                 noteCopy.startTime = currentTime;
                                 noteCopy.stopTime = currentTime + noteCopy.duration - noteCopy.articulationGap;
 
-                                copyNotesBuffer[i] = noteCopy;
+                                notesBuffer.push(noteCopy);
                                 currentTime += noteCopy.duration;
-                            }
-
-
-                            notesBuffer = notesBuffer.concat(copyNotesBuffer);
+                            });
                         }
                     };
 
@@ -232,6 +232,14 @@ var EightBit = (function() {
         };
 
         /**
+         * Set Master Volume
+         */
+        this.setMasterVolume = function(newVolume) {
+            masterVolumeLevel = newVolume;
+            masterVolume.gain.value = masterVolumeLevel;
+        };
+
+        /**
          * Mute all of the music
          */
         this.mute = function(cb) {
@@ -251,10 +259,16 @@ var EightBit = (function() {
         this.end = function() {
             oscillators = [];
             for (var i = 0; i < allNotesBuffer.length; i++) {
-                var pitch = allNotesBuffer[i].pitch;
+                var pitch = allNotesBuffer[i].pitch,
+                    startTime = allNotesBuffer[i].startTime,
+                    stopTime = allNotesBuffer[i].stopTime
+                ;
 
+                calculatedPlayTime += stopTime - startTime;
+
+                // No pitch, then it's a rest and we don't need an oscillator
                 if (! pitch) {
-                    pitch = '0';
+                    continue;
                 }
 
                 pitch.split(',').forEach(function(p) {
@@ -265,20 +279,16 @@ var EightBit = (function() {
                     // Connect volume gain to the context;
                     volume.connect(masterVolume);
 
-                    if (p === false) {
-                        o.connect(muteGain);
-                    } else {
-                        // Set the volume for this note
-                        volume.gain.value = allNotesBuffer[i].volume;
-                        o.connect(volume);
-                    }
+                    // Set the volume for this note
+                    volume.gain.value = allNotesBuffer[i].volume;
+                    o.connect(volume);
 
                     o.type = allNotesBuffer[i].pitchType;
-                    o.frequency.value = p !== '0' ? pitches[p] : 0;
+                    o.frequency.value = pitches[p];
 
                     oscillators.push({
-                        startTime: allNotesBuffer[i].startTime,
-                        stopTime: allNotesBuffer[i].stopTime,
+                        startTime: startTime,
+                        stopTime: stopTime,
                         o: o,
                         volume: volume
                     });
@@ -318,14 +328,14 @@ var EightBit = (function() {
             currentPlayTime = ac.currentTime;
 
             var timeOffset = ac.currentTime - totalPlayTime;
-            for (var i = 0; oscillators.length > i; i++) {
-                var o = oscillators[i].o,
-                    startTime = oscillators[i].startTime,
-                    stopTime = oscillators[i].stopTime
+            oscillators.forEach(function(osc) {
+                var o = osc.o,
+                    startTime = osc.startTime,
+                    stopTime = osc.stopTime
                 ;
                 o.start(startTime + timeOffset);
                 o.stop(stopTime + timeOffset);
-            }
+            });
 
             if (totalPlayTime > 0) {
                 fade('up');
@@ -378,12 +388,12 @@ var EightBit = (function() {
             if ('up' !== direction && 'down' !== direction) {
                 throw new Error('Direction must be either up or down.');
             }
-            var i = 100,
+            var i = 100 * masterVolumeLevel,
                 timeout = function() {
                     setTimeout(function() {
                         if (i > 0) {
                             i = i - 2;
-                            var gain = 'up' === direction ? 100 - i : i;
+                            var gain = 'up' === direction ? masterVolumeLevel * 100 - i : i;
                             masterVolume.gain.value = gain / 100;
                             timeout();
                         } else {

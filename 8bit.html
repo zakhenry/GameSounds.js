@@ -155,9 +155,8 @@
 
             gameMusic.end();
 
-            $scope.playing = false;
-            $scope.paused = false;
-            $scope.muted = false;
+            $scope.playing = $scope.paused = $scope.muted = false;
+            $scope.volume = 100;
 
             $scope.play = function() {
                 $scope.playing = true;
@@ -179,11 +178,14 @@
                 gameMusic.stop();
             };
 
-
             $scope.pause = function() {
                 $scope.paused = true;
                 gameMusic.pause();
             }
+
+            $scope.$watch('volume', function() {
+                gameMusic.setMasterVolume($scope.volume / 100);
+            });
         });
     </script>
 </head>
@@ -193,5 +195,7 @@
 <button ng-show="! paused && playing" ng-click="pause()">Pause</button>
 <button ng-show="playing" ng-click="stop()">Stop</button>
 <button ng-show="playing" ng-click="mute()">{{ muted ? 'Unmute' : 'Mute' }}</button>
+<br>
+<input ng-disabled="muted" ng-show="playing" type="range" ng-model="volume">
 </body>
 </html>
