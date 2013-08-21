@@ -52,11 +52,11 @@ EightBit = (function() {
             beatsPerBar,
             noteGetsBeat,
             tempo,
-            allNotesBuffer = [],
+            instruments = [],
             oscillators = [],
             currentPlayTime,
             totalPlayTime = 0,
-            calculatedPlayTime = 0,
+            totalDuration = 0,
             paused = false,
             playing = false,
             loop = false,
@@ -72,7 +72,7 @@ EightBit = (function() {
             totalPlayTimeCalculator = function() {
                 setTimeout(function() {
                     if (! paused && playing) {
-                        if (calculatedPlayTime < totalPlayTime) {
+                        if (totalDuration < totalPlayTime) {
                             onFinished(onFinishedCallback);
                         } else {
                             updateTotalPlayTime();
@@ -220,10 +220,15 @@ EightBit = (function() {
                     };
 
                     /**
-                     * Copies all notes to the master list of notes.
+                     * Copies all notes to the master list of notes. It also calculates the total duration
+                     * of each instrument.
                      */
                     this.finish = function() {
-                        allNotesBuffer = allNotesBuffer.concat(notesBuffer);
+                        var totalDuration = 0;
+                        notesBuffer.forEach(function(note) {
+                            totalDuration += note.duration;
+                        });
+                        instruments.push({notes: notesBuffer, totalDuration: totalDuration});
                     };
                 }
 
@@ -296,45 +301,51 @@ EightBit = (function() {
          */
         this.end = function() {
             oscillators = [];
-            calculatedPlayTime = 0;
-            for (var i = 0; i < allNotesBuffer.length; i++) {
-                var pitch = allNotesBuffer[i].pitch,
-                    startTime = allNotesBuffer[i].startTime,
-                    stopTime = allNotesBuffer[i].stopTime
-                ;
-
-                calculatedPlayTime += allNotesBuffer[i].duration;
-
-                // No pitch, then it's a rest and we don't need an oscillator
-                if (! pitch) {
-                    continue;
+            totalDuration = 0;
+            for (var i = 0; i < instruments.length; i++) {
+                // Find the highest duration of all of the instruments
+                if (totalDuration < instruments[i].totalDuration) {
+                    totalDuration = instruments[i].totalDuration;
                 }
+                var theseNotes = instruments[i].notes;
+                for (var ii = 0; ii < theseNotes.length; ii++) {
+                    var pitch = theseNotes[ii].pitch,
+                        startTime = theseNotes[ii].startTime,
+                        stopTime = theseNotes[ii].stopTime,
+                        pitchType = theseNotes[ii].pitchType,
+                        noteVolume = theseNotes[ii].volume
+                    ;
 
-                pitch.split(',').forEach(function(p) {
-                    p = p.trim();
-                    var o = ac.createOscillator(),
-                        volume = ac.createGain();
+                    // No pitch, then it's a rest and we don't need an oscillator
+                    if (! pitch) {
+                        continue;
+                    }
 
-                    // Connect volume gain to the Master Volume;
-                    volume.connect(masterVolume);
-                    // Set the volume for this note
-                    volume.gain.value = allNotesBuffer[i].volume;
-                    // Connect note to volume
-                    o.connect(volume);
-                    // Set pitch type
-                    o.type = allNotesBuffer[i].pitchType;
-                    // Set frequency
-                    o.frequency.value = pitches[p];
-                    // Add to the list of oscillators
-                    oscillators.push({
-                        startTime: startTime,
-                        stopTime: stopTime,
-                        o: o
+                    pitch.split(',').forEach(function(p) {
+                        p = p.trim();
+                        var o = ac.createOscillator(),
+                            volume = ac.createGain();
+
+                        // Connect volume gain to the Master Volume;
+                        volume.connect(masterVolume);
+                        // Set the volume for this note
+                        volume.gain.value = noteVolume;
+                        // Connect note to volume
+                        o.connect(volume);
+                        // Set pitch type
+                        o.type = pitchType;
+                        // Set frequency
+                        o.frequency.value = pitches[p];
+                        // Add to the list of oscillators
+                        oscillators.push({
+                            startTime: startTime,
+                            stopTime: stopTime,
+                            o: o
+                        });
                     });
-                });
+                }
             }
         };
-
 
         /**
          * Sets the time signature for the music. Just like in notation 4/4 time would be setTimeSignature(4, 4);
