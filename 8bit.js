@@ -1,6 +1,6 @@
 /**
  * 8Bit.js Audio Library - Write music using 8bit oscillation sounds.
- * Supports rhythms and multiple instruments.
+ * Supports rhythms, multiple instruments, repeating sections, and complex time signatures.
  *
  * @author Cody Lundquist - 2013
  */
@@ -62,8 +62,7 @@ EightBit = (function() {
             loop = false,
             onFinishedCallback,
             onFinished = function(cb) {
-                reset();
-                totalPlayTime = 0;
+                self.stop(false);
                 if (loop) {
                     self.play();
                 } else {
@@ -105,10 +104,12 @@ EightBit = (function() {
                         volumeLevel = 0.25,
                         pitchType = waveforms[waveform],
                         notesBuffer = []
-                        ;
+                    ;
 
                     this.setVolume = function(newVolumeLevel) {
                         volumeLevel = newVolumeLevel;
+
+                        return self;
                     };
 
                     /**
@@ -117,7 +118,7 @@ EightBit = (function() {
                      * @param note
                      * @param [tie]
                      */
-                    this.addNote = function(pitch, note, tie) {
+                    this.note = function(pitch, note, tie) {
                         if (typeof notes[note] === 'undefined') {
                             throw new Error(note + ' is not a correct note.');
                         }
@@ -145,6 +146,8 @@ EightBit = (function() {
                         });
 
                         currentTime += duration;
+
+                        return self;
                     };
 
                     /**
@@ -152,7 +155,7 @@ EightBit = (function() {
                      *
                      * @param note
                      */
-                    this.addRest = function(note) {
+                    this.rest = function(note) {
                         if (typeof notes[note] === 'undefined') {
                             throw new Error('Need to use correct note.');
                         }
@@ -170,6 +173,8 @@ EightBit = (function() {
                         });
 
                         currentTime += duration;
+
+                        return self;
                     };
 
                     /**
@@ -177,6 +182,8 @@ EightBit = (function() {
                      */
                     this.repeatStart = function() {
                         lastRepeatCount = notesBuffer.length;
+
+                        return self;
                     };
 
                     /**
@@ -185,6 +192,8 @@ EightBit = (function() {
                     this.repeatFromBeginning = function(numOfRepeats) {
                         lastRepeatCount = 0;
                         self.repeat(numOfRepeats);
+
+                        return self;
                     };
 
                     /**
@@ -206,6 +215,8 @@ EightBit = (function() {
                                 currentTime += noteCopy.duration;
                             });
                         }
+
+                        return self;
                     };
 
                     /**
@@ -242,6 +253,7 @@ EightBit = (function() {
          * Stop playing all music and reset the Oscillators
          */
         this.stop = function(fadeOut) {
+            playing = false;
             if (typeof fadeOut === 'undefined') {
                 fadeOut = true;
             }
@@ -436,7 +448,6 @@ EightBit = (function() {
          * Helper function to stop all oscillators and recreate them
          */
         function reset() {
-            playing = false;
             oscillators.forEach(function(osc) {
                 osc.o.stop(0);
             });

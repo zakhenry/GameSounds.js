@@ -11,147 +11,226 @@
         app.controller('AppController', function($scope) {
             var gameMusic = new EightBit();
 
-            gameMusic.setTimeSignature(4, 4);
+            gameMusic.setTimeSignature(2, 2);
             gameMusic.setTempo(200);
 
-            var firstPiano = gameMusic.createInstrument('square');
+            var rightHand = gameMusic.createInstrument('square'),
+                leftHand = gameMusic.createInstrument('triangle');
 
             /**
              * Intro
              */
-                // Bar 1
-            firstPiano.addNote('E5, F#4', 'eighth');
-            firstPiano.addNote('E5, F#4', 'eighth');
-            firstPiano.addRest('eighth');
-            firstPiano.addNote('E5, F#4', 'eighth');
-            firstPiano.addRest('eighth');
-            firstPiano.addNote('C5, F#4', 'eighth');
-            firstPiano.addNote('E5, F#4', 'eighth');
-            firstPiano.addRest('eighth');
+            // Bar 1
+            rightHand.note('E5, F#4', 'quarter')
+                .note('E5, F#4', 'quarter')
+                .rest('quarter')
+                .note('E5, F#4', 'quarter');
 
-            // Bar 2
-            firstPiano.addNote('G5, B4, G4', 'eighth');
-            firstPiano.addRest('eighth');
-            firstPiano.addRest('quarter');
-            firstPiano.addNote('G4', 'eighth');
-            firstPiano.addRest('eighth');
-            firstPiano.addRest('quarter');
+            leftHand.note('D3', 'quarter')
+                .note('D3', 'quarter')
+                .rest('quarter')
+                .note('D3', 'quarter');
 
-            /**
-             * Chorus
-             */
+            // Bar2
+            rightHand.rest('quarter')
+                .note('C5, F#4', 'quarter')
+                .note('E5, F#4', 'quarter')
+                .rest('quarter');
 
-                // Bar 1
-            firstPiano.repeatStart();
-            firstPiano.addNote('C5, E4', 'eighth');
-            firstPiano.addRest('eighth');
-            firstPiano.addRest('eighth');
-            firstPiano.addNote('G4, C3', 'eighth');
-            firstPiano.addRest('quarter');
-            firstPiano.addNote('E4, G3', 'eighth');
-            firstPiano.addRest('eighth');
-
-            // Bar 2
-            firstPiano.addRest('eighth');
-            firstPiano.addNote('A4, C3', 'eighth');
-            firstPiano.addRest('eighth');
-            firstPiano.addNote('B4, D4', 'eighth');
-            firstPiano.addRest('eighth');
-            firstPiano.addNote('Bb4, Db4', 'eighth');
-            firstPiano.addNote('A4, C3', 'eighth');
-            firstPiano.addRest('eighth');
+            leftHand.rest('quarter')
+                .note('D3', 'quarter')
+                .note('D3', 'quarter')
+                .rest('quarter');
 
             // Bar 3
-            firstPiano.addNote('G4, C4', 'tripletQuarter');
-            firstPiano.addNote('E5, G4', 'tripletQuarter');
-            firstPiano.addNote('G5, B4', 'tripletQuarter');
-            firstPiano.addNote('A5, C5', 'eighth');
-            firstPiano.addRest('eighth');
-            firstPiano.addNote('F5, A4', 'eighth');
-            firstPiano.addNote('G5, B4', 'eighth');
+            rightHand.note('G5, B4, G4', 'quarter')
+                .rest('quarter')
+                .rest('half');
+
+            leftHand.rest('whole');
 
             // Bar 4
-            firstPiano.addRest('eighth');
-            firstPiano.addNote('E5, G4', 'eighth');
-            firstPiano.addRest('eighth');
-            firstPiano.addNote('C5, E4', 'eighth');
-            firstPiano.addNote('D5, F4', 'eighth');
-            firstPiano.addNote('B4, D4', 'eighth');
-            firstPiano.addRest('quarter');
-            firstPiano.repeat();
+            rightHand.note('G4', 'quarter')
+                .rest('quarter')
+                .rest('half');
 
-            /**
-             * Bridge
-             */
-                // Bar 1
-            firstPiano.addRest('quarter');
-            firstPiano.addNote('G5, E5', 'eighth');
-            firstPiano.addNote('Gb5, Eb5', 'eighth');
-            firstPiano.addNote('F5, D5', 'eighth');
-            firstPiano.addNote('D#5, B4', 'eighth');
-            firstPiano.addRest('eighth');
-            firstPiano.addNote('E5, C5', 'eighth');
-
-            // Bar 2
-            firstPiano.addRest('eighth');
-            firstPiano.addNote('G#4, E4', 'eighth');
-            firstPiano.addNote('A4, F4', 'eighth');
-            firstPiano.addNote('C5, A4', 'eighth');
-            firstPiano.addRest('eighth');
-            firstPiano.addNote('A4, C3', 'eighth');
-            firstPiano.addNote('C5, E4', 'eighth');
-            firstPiano.addNote('D5, F4', 'eighth');
-
-            // Bar 3
-            firstPiano.addRest('quarter');
-            firstPiano.addNote('G5, E5', 'eighth');
-            firstPiano.addNote('Gb5, Eb5', 'eighth');
-            firstPiano.addNote('F5, D5', 'eighth');
-            firstPiano.addNote('D#5, B4', 'eighth');
-            firstPiano.addRest('eighth');
-            firstPiano.addNote('E5, C5', 'eighth');
-
-            // Bar 4
-            firstPiano.addRest('eighth');
-            firstPiano.addNote('C6, G6, F6', 'eighth');
-            firstPiano.addRest('eighth');
-            firstPiano.addNote('C6, G6, F6', 'eighth');
-            firstPiano.addNote('C6, G6, F6', 'eighth');
+            leftHand.note('G3', 'quarter')
+                .rest('quarter')
+                .rest('half');
 
             // Bar 5
-            firstPiano.addRest('quarter');
-            firstPiano.addNote('G5, E5', 'eighth');
-            firstPiano.addNote('Gb5, Eb5', 'eighth');
-            firstPiano.addNote('F5, D5', 'eighth');
-            firstPiano.addNote('D#5, B4', 'eighth');
-            firstPiano.addRest('eighth');
-            firstPiano.addNote('E5, C5', 'eighth');
+            rightHand.repeatStart()
+                .note('C5, E4', 'quarter')
+                .rest('quarter')
+                .rest('quarter')
+                .note('G4, C3', 'quarter');
 
-            // Bar 6
-            firstPiano.addRest('eighth');
-            firstPiano.addNote('G#4, E4', 'eighth');
-            firstPiano.addNote('A4, F4', 'eighth');
-            firstPiano.addNote('C5, A4', 'eighth');
-            firstPiano.addRest('eighth');
-            firstPiano.addNote('A4, C3', 'eighth');
-            firstPiano.addNote('C5, E4', 'eighth');
-            firstPiano.addNote('D5, F4', 'eighth');
+            leftHand.repeatStart()
+                .note('C5, E4', 'quarter')
+                .rest('quarter')
+                .rest('quarter')
+                .note('G4, C3', 'quarter');
+
+            // bar 6
+            rightHand.rest('half')
+                .note('E4, G3', 'quarter')
+                .rest('quarter');
+
+            leftHand.rest('half')
+                .note('E4, G3', 'quarter')
+                .rest('quarter');
 
             // Bar 7
-            firstPiano.addRest('quarter');
-            firstPiano.addNote('Eb5, Ab4', 'eighth');
-            firstPiano.addRest('eighth');
-            firstPiano.addRest('eighth');
-            firstPiano.addNote('D5, F4', 'eighth');
-            firstPiano.addRest('quarter');
+            rightHand.rest('quarter')
+                .note('A4, C3', 'quarter')
+                .rest('quarter')
+                .note('B4, D4', 'quarter');
+
+            leftHand.rest('quarter')
+                .note('A4, C3', 'quarter')
+                .rest('quarter')
+                .note('B4, D4', 'quarter');
 
             // Bar 8
-            firstPiano.addNote('C5, E4', 'eighth');
-            firstPiano.addRest('eighth');
-            firstPiano.addRest('quarter');
-            firstPiano.addRest('half');
-            firstPiano.repeatFromBeginning();
-            firstPiano.finish();
+            rightHand.rest('quarter')
+                .note('Bb4, Db4', 'quarter')
+                .note('A4, C3', 'quarter')
+                .rest('quarter');
+
+            leftHand.rest('quarter')
+                .note('Bb4, Db4', 'quarter')
+                .note('A4, C3', 'quarter')
+                .rest('quarter');
+
+            // Bar 9
+            rightHand.note('G4, C4', 'tripletHalf')
+                .note('E5, G4', 'tripletHalf')
+                .note('G5, B4', 'tripletHalf');
+
+            leftHand.note('G4, C4', 'tripletHalf')
+                .note('E5, G4', 'tripletHalf')
+                .note('G5, B4', 'tripletHalf');
+
+            // Bar 10
+            rightHand.note('A5, C5', 'quarter')
+                .rest('quarter')
+                .note('F5, A4', 'quarter')
+                .note('G5, B4', 'quarter');
+
+            leftHand.note('A5, C5', 'quarter')
+                .rest('quarter')
+                .note('F5, A4', 'quarter')
+                .note('G5, B4', 'quarter');
+
+            // Bar 11
+            rightHand.rest('quarter')
+                .note('E5, G4', 'quarter')
+                .rest('quarter')
+                .note('C5, E4', 'quarter');
+
+            leftHand.rest('quarter')
+                .note('E5, G4', 'quarter')
+                .rest('quarter')
+                .note('C5, E4', 'quarter');
+
+            // Bar 12
+            rightHand.note('D5, F4', 'quarter')
+                .note('B4, D4', 'quarter')
+                .rest('half');
+
+            // Repeat back to Bar 5
+            rightHand.repeat();
+
+            leftHand.note('D5, F4', 'quarter')
+                .note('B4, D4', 'quarter')
+                .rest('half');
+
+            // Repeat back to Bar 5
+            leftHand.repeat();
+
+
+            // Bar 13
+            rightHand.rest('half')
+                .note('G5, E5', 'quarter')
+                .note('Gb5, Eb5', 'quarter');
+
+            // Bar 14
+            rightHand.note('F5, D5', 'quarter')
+                .note('D#5, B4', 'quarter')
+                .rest('quarter')
+                .note('E5, C5', 'quarter');
+
+            // Bar 15
+            rightHand.rest('quarter')
+                .note('G#4, E4', 'quarter')
+                .note('A4, F4', 'quarter')
+                .note('C5, A4', 'quarter');
+
+            // Bar 16
+            rightHand.rest('quarter')
+                .note('A4, C3', 'quarter')
+                .note('C5, E4', 'quarter')
+                .note('D5, F4', 'quarter');
+
+            // Bar 17
+            rightHand.rest('half')
+                .note('G5, E5', 'quarter')
+                .note('Gb5, Eb5', 'quarter');
+
+            // Bar 18
+            rightHand.note('F5, D5', 'quarter')
+                .note('D#5, B4', 'quarter')
+                .rest('quarter')
+                .note('E5, C5', 'quarter');
+
+            // Bar 19
+            rightHand.rest('quarter')
+                .note('C6, G6, F6', 'quarter')
+                .rest('quarter')
+                .note('C6, G6, F6', 'quarter');
+
+            // Bar 20
+            rightHand.note('C6, G6, F6', 'quarter')
+                .rest('half')
+                .note('G5, E5', 'quarter')
+                .note('Gb5, Eb5', 'quarter');
+
+            // Bar 21
+            rightHand.note('F5, D5', 'quarter')
+                .note('D#5, B4', 'quarter')
+                .rest('quarter')
+                .note('E5, C5', 'quarter');
+
+            // Bar 22
+            rightHand.rest('quarter')
+                .note('G#4, E4', 'quarter')
+                .note('A4, F4', 'quarter')
+                .note('C5, A4', 'quarter');
+
+            // Bar 23
+            rightHand.rest('quarter')
+                .note('A4, C3', 'quarter')
+                .note('C5, E4', 'quarter')
+                .note('D5, F4', 'quarter');
+
+            // Bar 24
+            rightHand.rest('half')
+                .note('Eb5, Ab4', 'quarter')
+                .rest('quarter');
+
+            // Bar 25
+            rightHand.rest('quarter')
+                .note('D5, F4', 'quarter')
+                .rest('half');
+
+            // Bar 26
+            rightHand.note('C5, E4', 'quarter')
+                .rest('quarter')
+                .rest('half')
+                .rest('whole');
+
+            rightHand.finish();
+            leftHand.finish();
 
             gameMusic.end();
 
