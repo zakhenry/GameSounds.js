@@ -391,6 +391,8 @@ EightBit = (function() {
 
                 o.start(startTime);
                 o.stop(stopTime);
+
+                console.log('start:', startTime, 'stop:', stopTime);
             });
 
             if (totalPlayTime > 0) {

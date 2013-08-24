@@ -4,154 +4,34 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title>js13k Audio elements</title>
-        <script>
-
-
-
-
-                audio = {
-                    ctx: new(window.audioContext || window.webkitAudioContext),
-                    osc: null,
-                    notesPlaying: {},
-                    beepStart: function(freq, shape){
-                        oscillator = audio.ctx.createOscillator();
-                        oscillator.type = shape;
-                        oscillator.frequency.value = freq;
-                        oscillator.connect(audio.ctx.destination);
-                        oscillator.noteOn(0);
-
-                        return oscillator;
-                    },
-                    addNote: function(freq, shape){
-                        if (!this.notesPlaying.hasOwnProperty(freq)){
-                            osc = this.beepStart(freq, shape);
-                            this.notesPlaying[freq] = osc;
-                        }else{
-                            console.log('this note is already playing!');
-                        }
-
-                    },
-                    stopNote: function(freq){
-                        if (this.notesPlaying.hasOwnProperty(freq)){
-                            this.notesPlaying[freq].noteOff(0);
-                            delete this.notesPlaying[freq];
-                        }
-                    },
-                    stopAll: function(){
-                        for (var note in this.notesPlaying){
-                            this.stopNote(note);
-                        }
-                    }
-
-                }
-
-
-
-                var initClock = Date.now();
-
-                function modifyPitch(clock, count, flip){
-                    var detune = (clock - initClock)/10;
-                    for (var note in audio.notesPlaying){
-
-                        if (flip == 1){
-                            audio.notesPlaying[note].detune.value = 500-detune;
-                        }else{
-                            audio.notesPlaying[note].detune.value = detune;
-                        }
-                    }
-
-                    if (count == 1){
-                        count = -1;
-                        for (var note in audio.notesPlaying){
-                            audio.notesPlaying[note].frequency.value = 0;
-                        }
-                    }else{
-                        for (var note in audio.notesPlaying){
-                            audio.notesPlaying[note].frequency.value = note;
-                        }
-                    }
-
-                    if (detune > 500){
-                        initClock = clock;
-                        flip = (flip == 1) ? 0 : 1;
-                    }
-
-                    count ++;
-
-
-                    clock = Date.now();
-                    setTimeout('modifyPitch('+clock+', '+count+', '+flip+')', detune/1.8);
-                }
-
-
-
-//                modifyPitch(initClock, 0, 1);
-//
-//                audio.addNote(120.3, 2);
-//                audio.addNote(125.1, 2);
-//                audio.addNote(128.7, 2);
-//                audio.addNote(700, 4);
-
-
-                themeTune = {
-                    data:  [
-                        [[300, 1]], //freq, waveform
-                        [[100, 1], [200, 1]],
-                        [[0, 1]]
-                    ], //not actually the theme tune, just a queueing test
-                    intervalId: null,
-                    startTime: null,
-                    speed: 1000, // millis per beat,
-                    queue: [],
-                    currentNotePoint: -1,
-                    update: function(){
-                        console.log('updating tune');
-
-                        var currentPoint = Math.floor((Date.now() - this.startTime) / this.speed); //the array id of the dataset to play
-
-                        if (this.currentNotePoint != currentPoint){
-
-                            console.log('changing to new note set: ', currentPoint);
-
-                            if (currentPoint != 0){
-                                this.stopNoteSet(currentPoint - 1);
-                            }
-                            if (currentPoint != this.data.length){
-                                this.playNoteSet(currentPoint);
-                            }else{ //tune end reached, restarting
-                                console.log('tune end reached, restarting');
-                                this.playNoteSet(0);
-                                this.startTime = Date.now();
-                            }
-
-
-
-                            this.currentNotePoint = currentPoint;
-
-
-                        }
-                    },
-                    start :  function(){
-                        this.intervalId = setInterval('themeTune.update()', 10);
-                        this.startTime = Date.now();
-                    },
-                    stop: function(){
-                        clearInterval(this.intervalId);
-                    },
-                    playNoteSet: function(setId){
-                        console.log('starting: ', this.data[setId]);
-                    },
-                    stopNoteSet: function(setId){
-                        console.log('stopping: ', this.data[setId]);
-                    }
-                }
-
-
-
-        </script>
+        <script type="text/javascript" src="gamesounds.js"></script>
+        <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
     </head>
     <body>
 
 
+        <button class="playSound" id="template" style="display: none;"></button>
+
+        <script type="text/javascript">
+
+            $(function(){
+
+                for (var sound in gameSounds.sounds){
+
+                    $('button#template').clone().removeAttr('id').attr('data-sound', sound).text(sound).show().appendTo('body');
+
+                }
+
+                $('button.playSound').click(function(){
+
+                    var thisSound = $(this).attr('data-sound');
+
+                    gameSounds.triggerSound(thisSound);
+
+                });
+
+            });
+
+        </script>
     </body>
 </html>
