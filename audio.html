@@ -12,6 +12,11 @@
 
         <button class="playSound" id="template" style="display: none;"></button>
 
+        Distance X: <input type="range" name="panx" id="panx" min="-100" max="100"><br>
+        Distance Y: <input type="range" name="pany" id="pany" min="-100" max="100"><br>
+
+        Function Called: <span id="functionCall"></span><br >
+
         <script type="text/javascript">
 
             $(function(){
@@ -25,8 +30,12 @@
                 $('button.playSound').click(function(){
 
                     var thisSound = $(this).attr('data-sound');
+                    var panX = Number($('input#panx').val());
+                    var panY = Number($('input#pany').val());
 
-                    gameSounds.triggerSound(thisSound);
+                    var sound = gameSounds.triggerSound(thisSound, panX, panY);
+
+                    $('#functionCall').text('gameSounds.triggerSound(\''+thisSound+'\', '+panX+', '+panY+');');
 
                 });
 

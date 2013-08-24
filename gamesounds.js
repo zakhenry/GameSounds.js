@@ -62,7 +62,7 @@ var gameSounds = {
             },
             mod: {
                 wave: 1,
-                freq: 300,
+                freq: 9,
                 gain: 100
             }
         },
@@ -90,10 +90,73 @@ var gameSounds = {
                 freq: 100,
                 gain: 50
             }
+        },
+
+        yesThisIsPhone: {
+            duration: 2.0,
+            wave: 3,
+            freq: {
+                points: [
+                    [0.0, 700, 0] //time, frequency, 0=set, 1=linear ramp, 2= exp ramp
+                ]
+            },
+            vol: {
+                points: [
+                    [0.0, 5.0, 0],
+                    [1.0, 5.0, 0],
+                    [1.1, 0.0, 1],
+                    [1.2, 5.0, 1]
+                ]
+            },
+            mod: {
+                wave: 1,
+                freq: 10,
+                gain: 100
+            }
+        },
+
+        siren: {
+            duration: 2.0,
+            wave: 3,
+            freq: {
+                points: [
+                    [0.0, 700, 0] //time, frequency, 0=set, 1=linear ramp, 2= exp ramp
+                ]
+            },
+            vol: {
+                points: [
+                    [0.0, 5.0, 0]
+                ]
+            },
+            mod: {
+                wave: 3,
+                freq: 2,
+                gain: 100
+            }
+        },
+
+        alert: {
+            duration: 2.0,
+            wave: 3,
+            freq: {
+                points: [
+                    [0.0, 700, 0] //time, frequency, 0=set, 1=linear ramp, 2= exp ramp
+                ]
+            },
+            vol: {
+                points: [
+                    [0.0, 5.0, 0]
+                ]
+            },
+            mod: {
+                wave: 1,
+                freq: 2,
+                gain: 100
+            }
         }
 
     },
-    triggerSound: function(sound){
+    triggerSound: function(sound, x, y){
 
         var playingSound = gameSounds.sounds[sound]; //a copy
 
@@ -132,12 +195,23 @@ var gameSounds = {
         modOscGain.gain.value = playingSound.mod.gain;
 
 
-
         modOscGain.connect( oscillator.frequency );	// connect tremolo to oscillator frequency
 
-        oscillator.connect(envelope); //connect oscillator to master volume
 
-        envelope.connect(gameSounds.ac.destination); //connect master volume to output
+
+        var panner = gameSounds.ac.createPanner();
+
+        var panX = (typeof x == 'number') ? x : 0;
+        var panY = (typeof y == 'number') ? y : 0;
+        console.log(typeof x);
+        panner.setPosition(panX, panY, 0);
+
+
+        oscillator.connect(envelope);
+
+        envelope.connect(panner);
+
+        panner.connect(gameSounds.ac.destination); //connect master volume to output
 
 
         oscillator.start(playingSound.startTime);
@@ -147,6 +221,7 @@ var gameSounds = {
         modOsc.stop(playingSound.startTime + playingSound.duration);
 
         console.log('playing sound', playingSound);
+
 
     },
     getRampType: function(number){
