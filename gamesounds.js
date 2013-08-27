@@ -39,6 +39,29 @@ var gameSounds = {
             }
         },
 
+        pulse: {
+            duration: 1.8,
+            wave: 0,
+            freq: {
+                points: [
+                    [0.0, 900, 0], //time, frequency, 0=set, 1=linear ramp, 2= exp ramp
+                    [1.8, 400, 2]
+                ]
+            },
+            vol: {
+                points: [
+                    [0.0, 5.0, 0],
+                    [1.7, 5.0, 0],
+                    [1.8, 1.0, 1]
+                ]
+            },
+            mod: {
+                wave: 3,
+                freq: 90,
+                gain: 100
+            }
+        },
+
         rand1: {
             duration: 6.0,
             wave: 0,
@@ -221,7 +244,6 @@ var gameSounds = {
         modOsc.stop(playingSound.startTime + playingSound.duration);
 
         console.log('playing sound', playingSound);
-
 
     },
     getRampType: function(number){
