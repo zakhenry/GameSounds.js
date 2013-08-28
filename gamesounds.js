@@ -14,12 +14,22 @@ function Sound(data){
     this.modOsc = this.ac.createOscillator();
     this.modOscGain = this.ac.createGain();
     this.panner = this.ac.createPanner();
+
+    this.hasRun = false;
 }
 
 Sound.prototype.playSingle = function(x, y){
+
+    if (this.hasRun){
+        console.log('this sound has already been run once; it must be recreated to be run again');
+        return false;
+    }
+
     var now = this.ac.currentTime;
 
     console.log('this.data',this.data);
+
+    console.log('playing sound at ', x, y);
 
     /* Set values from data */
     this.oscillator.type = this.data.wave;
@@ -41,8 +51,14 @@ Sound.prototype.playSingle = function(x, y){
 
     this.connect();
 
+    this.updateLocation(x, y);
+
     this.start(now);
     this.stop(now + this.data.duration);
+
+    this.hasRun = true;
+
+    return true;
 };
 
 Sound.prototype.connect = function(){
@@ -57,8 +73,6 @@ Sound.prototype.updateLocation = function(x, y){
     var panX = (typeof x == 'number') ? x : 0;
     var panY = (typeof y == 'number') ? y : 0;
 
-    console.log('updating pan location: ', panX, panY, x, y)
-
     this.panner.setPosition(panX, panY, 0);
 };
 
@@ -70,6 +84,12 @@ Sound.prototype.start = function(time){
 Sound.prototype.stop = function(time){
     this.oscillator.stop(time);
     this.modOsc.stop(time);
+};
+
+Sound.prototype.isPlaying = function(){
+
+    return (this.ac.currentTime-this.initTime) < this.data.duration;
+
 };
 
 var gameSounds = {
@@ -246,6 +266,14 @@ var gameSounds = {
             }
         }
 
+    },
+
+    getSound: function(sound){
+        var data = gameSounds.sounds[sound]; //a copy
+
+        var sound = new Sound(data);
+
+        return sound;
     },
 
 

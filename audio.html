@@ -10,20 +10,25 @@
     <body>
 
 
-        <button class="playSound" id="template" style="display: none;"></button>
+        <button class="selectSound" id="template" style="display: none;"></button>
 
-        Distance X: <input type="range" name="panx" id="panx" min="-100" max="100"><br>
-        Distance Y: <input type="range" name="pany" id="pany" min="-100" max="100"><br>
-
-        Pan: <input type="range" name="panrun" id="panrun" min="-100" max="100"><br>
-
-        Function Called: <span id="functionCall"></span><br >
+        <p>Click on the canvas to trigger a sound, move the mouse to change the position of the sound emitter</p>
+        <canvas id="canvas" width="500" height="500"></canvas><br />
 
         <script type="text/javascript">
 
-            $(function(){
 
-                var currentSound = null;
+            function updateCanvas(ctx, sx, sy, lx, ly){
+                ctx.fillStyle="#333333";
+                ctx.fillRect(0,0,500,500);
+                ctx.fillStyle="#ff0000";
+                ctx.fillRect(sx-3, sy-3, 6, 6);
+
+                ctx.fillStyle="#3f3fff";
+                ctx.fillRect(lx-3, ly-3, 6, 6);
+            }
+
+            $(function(){
 
                 for (var sound in gameSounds.sounds){
 
@@ -31,25 +36,60 @@
 
                 }
 
-                $('button.playSound').click(function(){
+                $('button.selectSound').click(function(){
 
-                    var thisSound = $(this).attr('data-sound');
-                    var panX = Number($('input#panx').val());
-                    var panY = Number($('input#pany').val());
-
-                    currentSound = gameSounds.triggerSound(thisSound, panX, panY);
-
-                    console.log(currentSound);
-
-                    $('#functionCall').text('gameSounds.triggerSound(\''+thisSound+'\', '+panX+', '+panY+');');
-
+                    soundSelected = $(this).attr('data-sound');
                 });
 
-                $('#panrun').change(function(){
-                    var pan = $(this).val();
 
-                    currentSound.updateLocation(Number(pan), 0);
-                    console.log('updating pan', pan);
+                for (var soundSelected in gameSounds.sounds) break; //default to the first element of the object
+
+
+                var c = document.getElementById("canvas");
+                var ctx = c.getContext("2d");
+
+                var mouseX, mouseY;
+
+                var offset = $('#canvas').offset();
+
+                var listenerX = 250, listenerY = 250;
+
+                gameSounds.ac.listener.setPosition(listenerX, listenerY, 0);
+
+                updateCanvas(ctx, 0, 0, listenerX, listenerY);
+
+                console.log('offset', offset);
+
+                var currentSound = false;
+
+                $('#canvas').mouseenter(function(){
+                    mouseInCanvas = true;
+//                    console.log('mouse in');
+                }).mouseleave(function(){
+                    mouseInCanvas = false;
+//                    console.log('mouse out');
+                }).mousemove(function(e){
+//                    console.log('moving');
+                    updateCanvas(ctx, e.clientX - offset.left, e.clientY - offset.top, listenerX, listenerY);
+
+
+                    if (currentSound && currentSound.isPlaying()){
+                        currentSound.updateLocation(e.clientX - offset.left, e.clientY - offset.top);
+                    }
+                }).mousedown(function(e){
+
+                    console.log(soundSelected);
+
+                    currentSound = gameSounds.getSound(soundSelected);
+
+                            console.log(sound);
+
+                    currentSound.playSingle(e.clientX - offset.left, e.clientY - offset.top);
+
+                    delete currentSound;
+
+                }).mouseup(function(){
+
                 });
 
             });
