@@ -4,6 +4,74 @@
  * @author Zak Henry - 2013
  */
 
+function Sound(data){
+    this.ac = gameSounds.ac;
+
+    this.data = data;
+    this.initTime = this.ac.currentTime;
+    this.oscillator = this.ac.createOscillator();
+    this.envelope = this.ac.createGain();
+    this.modOsc = this.ac.createOscillator();
+    this.modOscGain = this.ac.createGain();
+    this.panner = this.ac.createPanner();
+}
+
+Sound.prototype.playSingle = function(x, y){
+    var now = this.ac.currentTime;
+
+    console.log('this.data',this.data);
+
+    /* Set values from data */
+    this.oscillator.type = this.data.wave;
+
+    for (var volNode in this.data.vol.points){
+        var type = gameSounds.getRampType(this.data.vol.points[volNode][2]);
+        this.envelope.gain[type](this.data.vol.points[volNode][1], now + this.data.vol.points[volNode][0]);
+    }
+
+    for (var freqNode in this.data.freq.points){
+        var type = gameSounds.getRampType(this.data.freq.points[freqNode][2]);
+        this.oscillator.frequency[type](this.data.freq.points[freqNode][1], now+ this.data.freq.points[freqNode][0]);
+    }
+
+    this.modOsc.type = this.data.mod.wave;
+    this.modOsc.frequency.value = this.data.mod.freq;
+    this.modOscGain.gain.value = this.data.mod.gain;
+    /* Connect the sounds */
+
+    this.connect();
+
+    this.start(now);
+    this.stop(now + this.data.duration);
+};
+
+Sound.prototype.connect = function(){
+    this.modOsc.connect( this.modOscGain );
+    this.modOscGain.connect( this.oscillator.frequency );	// connect tremolo to oscillator frequency
+    this.oscillator.connect(this.envelope);
+    this.envelope.connect(this.panner);
+    this.panner.connect(this.ac.destination); //connect master volume to outputvolume to output
+};
+
+Sound.prototype.updateLocation = function(x, y){
+    var panX = (typeof x == 'number') ? x : 0;
+    var panY = (typeof y == 'number') ? y : 0;
+
+    console.log('updating pan location: ', panX, panY, x, y)
+
+    this.panner.setPosition(panX, panY, 0);
+};
+
+Sound.prototype.start = function(time){
+    this.oscillator.start(time);
+    this.modOsc.start(time);
+};
+
+Sound.prototype.stop = function(time){
+    this.oscillator.stop(time);
+    this.modOsc.stop(time);
+};
+
 var gameSounds = {
 
     ac: new (window.AudioContext || window.webkitAudioContext),
@@ -179,73 +247,20 @@ var gameSounds = {
         }
 
     },
+
+
     triggerSound: function(sound, x, y){
 
-        var playingSound = gameSounds.sounds[sound]; //a copy
+        var data = gameSounds.sounds[sound]; //a copy
 
-        playingSound.startTime = gameSounds.ac.currentTime;
+        var sound = new Sound(data);
 
-        var oscillator = gameSounds.ac.createOscillator();
+        sound.playSingle(x, y);
 
-
-
-        var now = gameSounds.ac.currentTime;
-
-        var envelope = gameSounds.ac.createGain();
-
-        for (var volNode in playingSound.vol.points){
-            var type = gameSounds.getRampType(playingSound.vol.points[volNode][2]);
-            envelope.gain[type](playingSound.vol.points[volNode][1], now+ playingSound.vol.points[volNode][0]);
-        }
-
-        console.log(gameSounds.ac, oscillator);
-
-        oscillator.type = playingSound.wave;
-
-        for (var freqNode in playingSound.freq.points){
-
-            var type = gameSounds.getRampType(playingSound.freq.points[freqNode][2]);
-
-            oscillator.frequency[type](playingSound.freq.points[freqNode][1], now+ playingSound.freq.points[freqNode][0]);
-        }
-
-        var modOsc = gameSounds.ac.createOscillator();
-        modOsc.type = playingSound.mod.wave;
-        modOsc.frequency.value = playingSound.mod.freq;
-
-        var modOscGain = gameSounds.ac.createGain();
-        modOsc.connect( modOscGain );
-        modOscGain.gain.value = playingSound.mod.gain;
-
-
-        modOscGain.connect( oscillator.frequency );	// connect tremolo to oscillator frequency
-
-
-
-        var panner = gameSounds.ac.createPanner();
-
-        var panX = (typeof x == 'number') ? x : 0;
-        var panY = (typeof y == 'number') ? y : 0;
-        console.log(typeof x);
-        panner.setPosition(panX, panY, 0);
-
-
-        oscillator.connect(envelope);
-
-        envelope.connect(panner);
-
-        panner.connect(gameSounds.ac.destination); //connect master volume to output
-
-
-        oscillator.start(playingSound.startTime);
-        oscillator.stop(playingSound.startTime + playingSound.duration);
-
-        modOsc.start(playingSound.startTime);
-        modOsc.stop(playingSound.startTime + playingSound.duration);
-
-        console.log('playing sound', playingSound);
+        return sound;
 
     },
+
     getRampType: function(number){
         var type = null;
         switch (number){

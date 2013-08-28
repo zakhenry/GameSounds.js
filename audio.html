@@ -15,11 +15,15 @@
         Distance X: <input type="range" name="panx" id="panx" min="-100" max="100"><br>
         Distance Y: <input type="range" name="pany" id="pany" min="-100" max="100"><br>
 
+        Pan: <input type="range" name="panrun" id="panrun" min="-100" max="100"><br>
+
         Function Called: <span id="functionCall"></span><br >
 
         <script type="text/javascript">
 
             $(function(){
+
+                var currentSound = null;
 
                 for (var sound in gameSounds.sounds){
 
@@ -33,10 +37,19 @@
                     var panX = Number($('input#panx').val());
                     var panY = Number($('input#pany').val());
 
-                    var sound = gameSounds.triggerSound(thisSound, panX, panY);
+                    currentSound = gameSounds.triggerSound(thisSound, panX, panY);
+
+                    console.log(currentSound);
 
                     $('#functionCall').text('gameSounds.triggerSound(\''+thisSound+'\', '+panX+', '+panY+');');
 
+                });
+
+                $('#panrun').change(function(){
+                    var pan = $(this).val();
+
+                    currentSound.updateLocation(Number(pan), 0);
+                    console.log('updating pan', pan);
                 });
 
             });
