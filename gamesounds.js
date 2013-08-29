@@ -37,15 +37,25 @@ function Sound(data, x, y){
     /* Set values from data */
     this.oscillator.type = this.data.wave;
 
-    for (var volNode in this.data.vol.points){
-        var type = gameSounds.getRampType(this.data.vol.points[volNode][2]);
-        this.envelope.gain[type](this.data.vol.points[volNode][1], now + this.data.vol.points[volNode][0]);
+    if (this.data.type == 'single'){ //set the sound var at time points
+        for (var volNode in this.data.vol.points){
+            var type = gameSounds.getRampType(this.data.vol.points[volNode][2]);
+            this.envelope.gain[type](this.data.vol.points[volNode][1], now + this.data.vol.points[volNode][0]);
+        }
+
+        for (var freqNode in this.data.freq.points){
+            var type = gameSounds.getRampType(this.data.freq.points[freqNode][2]);
+            this.oscillator.frequency[type](this.data.freq.points[freqNode][1], now+ this.data.freq.points[freqNode][0]);
+        }
+    }else if (this.data.type == 'continuous'){
+        this.oscillator.frequency = this.data.frequency;
+        this.envelope.gain = this.data.vol;
+    }else{
+        console.log('Error: A sound type must be set');
+        return false;
     }
 
-    for (var freqNode in this.data.freq.points){
-        var type = gameSounds.getRampType(this.data.freq.points[freqNode][2]);
-        this.oscillator.frequency[type](this.data.freq.points[freqNode][1], now+ this.data.freq.points[freqNode][0]);
-    }
+
 
     this.modOsc.type = this.data.mod.wave;
     this.modOsc.frequency.value = this.data.mod.freq;
@@ -148,6 +158,7 @@ var gameSounds = {
     sounds: {
 
         rand3: {
+            type: 'single',
             duration: 1.5,
             wave: 0,
             freq: {
@@ -178,6 +189,7 @@ var gameSounds = {
         },
 
         pulse: {
+            type: 'single',
             duration: 1.8,
             wave: 0,
             freq: {
@@ -201,17 +213,10 @@ var gameSounds = {
         },
 
         buzz: {
-            wave: 0,
-            freq: {
-                points: [
-                    [0.0, 250, 0]
-                ]
-            },
-            vol: {
-                points: [
-                    [0.0, 5.0, 0]
-                ]
-            },
+            type: 'continuous',
+            wave: 2,
+            freq: 300,
+            vol: 5,
             mod: {
                 wave: 3,
                 freq: 90,
@@ -220,6 +225,7 @@ var gameSounds = {
         },
 
         rand1: {
+            type: 'single',
             duration: 6.0,
             wave: 0,
             freq: {
@@ -248,6 +254,7 @@ var gameSounds = {
         },
 
         rand2: {
+            type: 'single',
             duration: 2.0,
             wave: 0,
             freq: {
@@ -273,6 +280,7 @@ var gameSounds = {
         },
 
         yesThisIsPhone: {
+            type: 'single',
             duration: 2.0,
             wave: 3,
             freq: {
@@ -296,6 +304,7 @@ var gameSounds = {
         },
 
         siren: {
+            type: 'single',
             duration: 2.0,
             wave: 3,
             freq: {
@@ -316,6 +325,7 @@ var gameSounds = {
         },
 
         alert: {
+            type: 'single',
             duration: 2.0,
             wave: 3,
             freq: {
@@ -377,4 +387,4 @@ var gameSounds = {
         return type;
     }
 
-}
+};
