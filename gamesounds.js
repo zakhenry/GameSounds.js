@@ -121,8 +121,13 @@ Sound.prototype.start = function(time){
         time = this.ac.currentTime; //now
     }
 
+
     this.oscillator.start(time);
     this.modOsc.start(time);
+
+    if (typeof this.data.duration != 'undefined'){
+        this.stop();
+    }
 
     return this;
 };
