@@ -4,7 +4,16 @@
  * @author Zak Henry - 2013
  */
 
-function Sound(data){
+
+/**
+ * Initialise a sound. The parameter data is all the params that define the sound. See gamesounds.sounds for examples
+ *
+ * @param {Object} data
+ * @param {Number} [x]
+ * @param {Number} [y]
+ * @constructor
+ */
+function Sound(data, x, y){
     this.ac = gameSounds.ac;
 
     this.data = data;
@@ -16,14 +25,8 @@ function Sound(data){
     this.panner = this.ac.createPanner();
 
     this.hasRun = false;
-}
 
-Sound.prototype.playSingle = function(x, y){
 
-    if (this.hasRun){
-        console.log('this sound has already been run once; it must be recreated to be run again');
-        return false;
-    }
 
     var now = this.ac.currentTime;
 
@@ -52,15 +55,22 @@ Sound.prototype.playSingle = function(x, y){
     this.connect();
 
     this.updateLocation(x, y);
+}
+/**
+ * Play a sound once. (Shortcut for .start(startTime).stop(stopTime)
+ *
+ * @returns {Sound}
+ */
+Sound.prototype.playOnce = function(){
 
-    this.start(now);
-    this.stop(now + this.data.duration);
+    this.start(this.ac.currentTime);
+    this.stop(this.ac.currentTime + this.data.duration);
 
-    this.hasRun = true;
-
-    return true;
+    return this;
 };
-
+/**
+ * Connects the audio nodes together
+ */
 Sound.prototype.connect = function(){
     this.modOsc.connect( this.modOscGain );
     this.modOscGain.connect( this.oscillator.frequency );	// connect tremolo to oscillator frequency
@@ -68,28 +78,68 @@ Sound.prototype.connect = function(){
     this.envelope.connect(this.panner);
     this.panner.connect(this.ac.destination); //connect master volume to outputvolume to output
 };
-
+/**
+ * Updates the game environment location. This is used in conjuction with gamesounds.ac.listener.setLocation() to
+ * determine volume/pan
+ *
+ * @param {Number} x
+ * @param {Number} y
+ * @returns {Sound}
+ */
 Sound.prototype.updateLocation = function(x, y){
     var panX = (typeof x == 'number') ? x : 0;
     var panY = (typeof y == 'number') ? y : 0;
 
     this.panner.setPosition(panX, panY, 0);
-};
 
+    return this;
+};
+/**
+ * Starts a sound playing at specified time, if no time is specified play starts immediately
+ *
+ * @param {Number} [time]
+ * @returns {Sound}
+ */
 Sound.prototype.start = function(time){
+
+    if (this.hasRun){
+        console.log('this sound has already been run once; it must be recreated to be run again');
+        return false;
+    }
+
+    if (typeof time == 'undefined'){
+        time = this.ac.currentTime; //now
+    }
+
     this.oscillator.start(time);
     this.modOsc.start(time);
-};
 
+    return this;
+};
+/**
+ * Stops sound playing at a certain time. If no time is set it will stop immediately
+ *
+ * @param {Number} [time]
+ * @returns {Sound}
+ */
 Sound.prototype.stop = function(time){
+
+    if (typeof time == 'undefined'){
+        time = this.ac.currentTime; //now
+    }
+
     this.oscillator.stop(time);
     this.modOsc.stop(time);
+
+    return this;
 };
 
+/**
+ * Checks if a sound is (still) playing
+ * @returns {boolean}
+ */
 Sound.prototype.isPlaying = function(){
-
     return (this.ac.currentTime-this.initTime) < this.data.duration;
-
 };
 
 var gameSounds = {
@@ -141,6 +191,25 @@ var gameSounds = {
                     [0.0, 5.0, 0],
                     [1.7, 5.0, 0],
                     [1.8, 1.0, 1]
+                ]
+            },
+            mod: {
+                wave: 3,
+                freq: 90,
+                gain: 100
+            }
+        },
+
+        buzz: {
+            wave: 0,
+            freq: {
+                points: [
+                    [0.0, 250, 0]
+                ]
+            },
+            vol: {
+                points: [
+                    [0.0, 5.0, 0]
                 ]
             },
             mod: {
@@ -268,10 +337,10 @@ var gameSounds = {
 
     },
 
-    getSound: function(sound){
+    getSound: function(sound, initX, initY){
         var data = gameSounds.sounds[sound]; //a copy
 
-        var sound = new Sound(data);
+        var sound = new Sound(data,initX, initY);
 
         return sound;
     },

@@ -80,11 +80,9 @@
 
                     console.log(soundSelected);
 
-                    currentSound = gameSounds.getSound(soundSelected);
+                    currentSound = gameSounds.getSound(soundSelected, e.clientX - offset.left, e.clientY - offset.top).start();
 
-                            console.log(sound);
-
-                    currentSound.playSingle(e.clientX - offset.left, e.clientY - offset.top);
+                    console.log(sound);
 
                     delete currentSound;
 
