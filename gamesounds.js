@@ -220,6 +220,44 @@ var gameSounds = {
             }
         },
 
+        playerSound: {
+            wave: 2,
+            freq: {
+                points: [
+                    [0.0, 300, 0] //time, frequency, 0=set, 1=linear ramp, 2= exp ramp
+                ]
+            },
+            vol: {
+                points: [
+                    [0.0, 1.0, 0]
+                ]
+            },
+            mod: {
+                wave: 3,
+                freq: 90,
+                gain: 100
+            }
+        },
+
+        otherPlayerSound: {
+            wave: 2,
+            freq: {
+                points: [
+                    [0.0, 300, 0] //time, frequency, 0=set, 1=linear ramp, 2= exp ramp
+                ]
+            },
+            vol: {
+                points: [
+                    [0.0, 5.0, 0]
+                ]
+            },
+            mod: {
+                wave: 3,
+                freq: 90,
+                gain: 100
+            }
+        },
+
         rand1: {
             duration: 6.0,
             wave: 0,
