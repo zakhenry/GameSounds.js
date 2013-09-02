@@ -54,40 +54,28 @@
 
                 var listenerX = 250, listenerY = 250;
 
-                gameSounds.ac.listener.setPosition(listenerX, listenerY, 0);
+                gameSounds.playerPosition(listenerX, listenerY);
 
                 updateCanvas(ctx, 0, 0, listenerX, listenerY);
-
-                console.log('offset', offset);
 
                 var currentSound = false;
 
                 $('#canvas').mouseenter(function(){
                     mouseInCanvas = true;
-//                    console.log('mouse in');
                 }).mouseleave(function(){
                     mouseInCanvas = false;
-//                    console.log('mouse out');
                 }).mousemove(function(e){
-//                    console.log('moving');
                     updateCanvas(ctx, e.clientX - offset.left, e.clientY - offset.top, listenerX, listenerY);
 
-
                     if (currentSound && currentSound.isPlaying()){
-                        currentSound.updateLocation(e.clientX - offset.left, e.clientY - offset.top);
+                        currentSound.at(e.clientX - offset.left, e.clientY - offset.top);
                     }
                 }).mousedown(function(e){
 
-                    console.log(soundSelected);
-
-                    currentSound = gameSounds.getSound(soundSelected, e.clientX - offset.left, e.clientY - offset.top).start();
-
-                    console.log(sound);
-
-                    delete currentSound;
+                    currentSound = gameSounds.get(soundSelected).at(e.clientX - offset.left, e.clientY - offset.top).start();
 
                 }).mouseup(function(){
-
+                    currentSound.stop();
                 });
 
             });

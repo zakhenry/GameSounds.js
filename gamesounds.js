@@ -13,7 +13,7 @@
  * @param {Number} [y]
  * @constructor
  */
-function Sound(data, x, y){
+function Sound(data){
     this.ac = gameSounds.ac;
 
     this.data = data;
@@ -30,29 +30,17 @@ function Sound(data, x, y){
 
     var now = this.ac.currentTime;
 
-    console.log('this.data',this.data);
-
-    console.log('playing sound at ', x, y);
-
     /* Set values from data */
     this.oscillator.type = this.data.wave;
 
-    if (this.data.type == 'single'){ //set the sound var at time points
-        for (var volNode in this.data.vol.points){
-            var type = gameSounds.getRampType(this.data.vol.points[volNode][2]);
-            this.envelope.gain[type](this.data.vol.points[volNode][1], now + this.data.vol.points[volNode][0]);
-        }
+    for (var volNode in this.data.vol.points){
+        var type = gameSounds.getRampType(this.data.vol.points[volNode][2]);
+        this.envelope.gain[type](this.data.vol.points[volNode][1], now + this.data.vol.points[volNode][0]);
+    }
 
-        for (var freqNode in this.data.freq.points){
-            var type = gameSounds.getRampType(this.data.freq.points[freqNode][2]);
-            this.oscillator.frequency[type](this.data.freq.points[freqNode][1], now+ this.data.freq.points[freqNode][0]);
-        }
-    }else if (this.data.type == 'continuous'){
-        this.oscillator.frequency = this.data.frequency;
-        this.envelope.gain = this.data.vol;
-    }else{
-        console.log('Error: A sound type must be set');
-        return false;
+    for (var freqNode in this.data.freq.points){
+        var type = gameSounds.getRampType(this.data.freq.points[freqNode][2]);
+        this.oscillator.frequency[type](this.data.freq.points[freqNode][1], now+ this.data.freq.points[freqNode][0]);
     }
 
 
@@ -63,21 +51,8 @@ function Sound(data, x, y){
     /* Connect the sounds */
 
     this.connect();
-
-    this.updateLocation(x, y);
 }
-/**
- * Play a sound once. (Shortcut for .start(startTime).stop(stopTime)
- *
- * @returns {Sound}
- */
-Sound.prototype.playOnce = function(){
 
-    this.start(this.ac.currentTime);
-    this.stop(this.ac.currentTime + this.data.duration);
-
-    return this;
-};
 /**
  * Connects the audio nodes together
  */
@@ -96,7 +71,7 @@ Sound.prototype.connect = function(){
  * @param {Number} y
  * @returns {Sound}
  */
-Sound.prototype.updateLocation = function(x, y){
+Sound.prototype.at = function(x, y){
     var panX = (typeof x == 'number') ? x : 0;
     var panY = (typeof y == 'number') ? y : 0;
 
@@ -122,11 +97,13 @@ Sound.prototype.start = function(time){
     }
 
 
+
+
     this.oscillator.start(time);
     this.modOsc.start(time);
 
     if (typeof this.data.duration != 'undefined'){
-        this.stop();
+        this.stop(time + this.data.duration);
     }
 
     return this;
@@ -146,6 +123,8 @@ Sound.prototype.stop = function(time){
     this.oscillator.stop(time);
     this.modOsc.stop(time);
 
+    this.hasRun = true;
+
     return this;
 };
 
@@ -154,7 +133,7 @@ Sound.prototype.stop = function(time){
  * @returns {boolean}
  */
 Sound.prototype.isPlaying = function(){
-    return (this.ac.currentTime-this.initTime) < this.data.duration;
+    return typeof this.data.duration == 'undefined' || (this.ac.currentTime-this.initTime) < this.data.duration; //if no duration set, it is always playing
 };
 
 var gameSounds = {
@@ -163,7 +142,6 @@ var gameSounds = {
     sounds: {
 
         rand3: {
-            type: 'single',
             duration: 1.5,
             wave: 0,
             freq: {
@@ -194,7 +172,6 @@ var gameSounds = {
         },
 
         pulse: {
-            type: 'single',
             duration: 1.8,
             wave: 0,
             freq: {
@@ -218,10 +195,17 @@ var gameSounds = {
         },
 
         buzz: {
-            type: 'continuous',
             wave: 2,
-            freq: 300,
-            vol: 5,
+            freq: {
+                points: [
+                    [0.0, 300, 0] //time, frequency, 0=set, 1=linear ramp, 2= exp ramp
+                ]
+            },
+            vol: {
+                points: [
+                    [0.0, 5.0, 0]
+                ]
+            },
             mod: {
                 wave: 3,
                 freq: 90,
@@ -230,7 +214,6 @@ var gameSounds = {
         },
 
         rand1: {
-            type: 'single',
             duration: 6.0,
             wave: 0,
             freq: {
@@ -259,7 +242,6 @@ var gameSounds = {
         },
 
         rand2: {
-            type: 'single',
             duration: 2.0,
             wave: 0,
             freq: {
@@ -285,7 +267,6 @@ var gameSounds = {
         },
 
         yesThisIsPhone: {
-            type: 'single',
             duration: 2.0,
             wave: 3,
             freq: {
@@ -309,7 +290,6 @@ var gameSounds = {
         },
 
         siren: {
-            type: 'single',
             duration: 2.0,
             wave: 3,
             freq: {
@@ -330,8 +310,26 @@ var gameSounds = {
         },
 
         alert: {
-            type: 'single',
             duration: 2.0,
+            wave: 3,
+            freq: {
+                points: [
+                    [0.0, 700, 0] //time, frequency, 0=set, 1=linear ramp, 2= exp ramp
+                ]
+            },
+            vol: {
+                points: [
+                    [0.0, 5.0, 0]
+                ]
+            },
+            mod: {
+                wave: 1,
+                freq: 2,
+                gain: 100
+            }
+        },
+
+        alert_continuous: {
             wave: 3,
             freq: {
                 points: [
@@ -350,27 +348,15 @@ var gameSounds = {
             }
         }
 
+
     },
 
-    getSound: function(sound, initX, initY){
-        var data = gameSounds.sounds[sound]; //a copy
-
-        var sound = new Sound(data,initX, initY);
-
-        return sound;
-    },
-
-
-    triggerSound: function(sound, x, y){
-
+    get: function(sound){
         var data = gameSounds.sounds[sound]; //a copy
 
         var sound = new Sound(data);
 
-        sound.playSingle(x, y);
-
         return sound;
-
     },
 
     getRampType: function(number){
@@ -390,6 +376,10 @@ var gameSounds = {
         }
 
         return type;
+    },
+
+    playerPosition: function(x, y){
+        this.ac.listener.setPosition(x, y, 0);
     }
 
 };
