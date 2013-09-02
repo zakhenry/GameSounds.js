@@ -75,6 +75,9 @@ Sound.prototype.at = function(x, y){
     var panX = (typeof x == 'number') ? x : 0;
     var panY = (typeof y == 'number') ? y : 0;
 
+    panY*=gameSounds.distanceScale;
+    panX*=gameSounds.distanceScale;
+
     this.panner.setPosition(panX, panY, 0);
 
     return this;
@@ -96,9 +99,6 @@ Sound.prototype.start = function(time){
         time = this.ac.currentTime; //now
     }
 
-
-
-
     this.oscillator.start(time);
     this.modOsc.start(time);
 
@@ -107,6 +107,12 @@ Sound.prototype.start = function(time){
     }
 
     return this;
+};
+/**
+ * Alias function to Sound.start();
+ */
+Sound.prototype.fire = function(){
+    this.start();
 };
 /**
  * Stops sound playing at a certain time. If no time is set it will stop immediately
@@ -139,6 +145,7 @@ Sound.prototype.isPlaying = function(){
 var gameSounds = {
 
     ac: new (window.AudioContext || window.webkitAudioContext),
+    distanceScale: 0.05,
     sounds: {
 
         rand3: {
@@ -379,6 +386,8 @@ var gameSounds = {
     },
 
     playerPosition: function(x, y){
+        x*=this.distanceScale;
+        y*=this.distanceScale;
         this.ac.listener.setPosition(x, y, 0);
     }
 
