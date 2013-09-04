@@ -15,7 +15,7 @@
  */
 function Sound(data){
     this.ac = gameSounds.ac;
-    this.mainVolume = gameSounds.masterGain;
+//    this.mainVolume = gameSounds.masterGain;
 
     this.data = data;
     this.initTime = this.ac.currentTime;
@@ -63,9 +63,14 @@ Sound.prototype.connect = function(){
     this.oscillator.connect(this.envelope);
     this.envelope.connect(this.panner);
 
-    this.panner.connect(this.mainVolume); //connect panner node to master volume
+//    this.panner.connect(this.mainVolume); //connect panner node to master volume
 
-    this.mainVolume.connect(this.ac.destination); //connect master volume to the ouput
+    var bus = new gameSounds.audioBus();
+
+    this.panner.connect(bus.mix);
+//    bus.connect(this.ac.destination);
+
+//    this.mainVolume.connect(this.ac.destination); //connect master volume to the ouput
 };
 /**
  * Updates the game environment location. This is used in conjuction with gamesounds.ac.listener.setLocation() to
@@ -157,6 +162,22 @@ var gameSounds = {
     distanceScale: 0.05,
     setVolume: function(number){ //volume 0-100, 0 being silent
         this.masterGain.gain.value = number/100;
+    },
+    audioBus: function(){
+
+        this.mix = gameSounds.ac.createGain(); //dummy node
+
+        var compressor = gameSounds.ac.createDynamicsCompressor(),
+            delay = gameSounds.ac.createDelayNode();
+
+        delay.delayTime.value = 0.2;
+
+        this.mix.connect(delay);
+        this.mix.connect(gameSounds.masterGain); //bypass the delay node
+        delay.connect(gameSounds.masterGain);
+        gameSounds.masterGain.connect(compressor);
+
+        compressor.connect(gameSounds.ac.destination);
     },
     sounds: {
 
