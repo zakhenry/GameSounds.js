@@ -15,6 +15,7 @@
  */
 function Sound(data){
     this.ac = gameSounds.ac;
+    this.mainVolume = gameSounds.masterGain;
 
     this.data = data;
     this.initTime = this.ac.currentTime;
@@ -61,7 +62,10 @@ Sound.prototype.connect = function(){
     this.modOscGain.connect( this.oscillator.frequency );	// connect tremolo to oscillator frequency
     this.oscillator.connect(this.envelope);
     this.envelope.connect(this.panner);
-    this.panner.connect(this.ac.destination); //connect master volume to outputvolume to output
+
+    this.panner.connect(this.mainVolume); //connect panner node to master volume
+
+    this.mainVolume.connect(this.ac.destination); //connect master volume to the ouput
 };
 /**
  * Updates the game environment location. This is used in conjuction with gamesounds.ac.listener.setLocation() to
@@ -145,7 +149,15 @@ Sound.prototype.isPlaying = function(){
 var gameSounds = {
 
     ac: new (window.AudioContext || window.webkitAudioContext),
+    masterGain: null,
+    init: function(){
+        this.masterGain =  this.ac.createGain();
+        this.masterGain.gain.value = 0.5;
+    },
     distanceScale: 0.05,
+    setVolume: function(number){ //volume 0-100, 0 being silent
+        this.masterGain.gain.value = number/100;
+    },
     sounds: {
 
         rand3: {

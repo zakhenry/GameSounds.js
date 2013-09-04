@@ -14,6 +14,7 @@
 
         <p>Click on the canvas to trigger a sound, move the mouse to change the position of the sound emitter</p>
         <canvas id="canvas" width="500" height="500"></canvas><br />
+        Volume: <input type="range" id="volume" min="0" max="100" />
 
         <script type="text/javascript">
 
@@ -29,6 +30,8 @@
             }
 
             $(function(){
+
+                gameSounds.init();
 
                 for (var sound in gameSounds.sounds){
 
@@ -76,6 +79,10 @@
 
                 }).mouseup(function(){
                     currentSound.stop();
+                });
+
+                $('#volume').change(function(){
+                    gameSounds.setVolume(Number($(this).val()));
                 });
 
             });
