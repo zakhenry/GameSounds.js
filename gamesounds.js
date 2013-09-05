@@ -47,9 +47,6 @@
 
             function _constructSound(data){
 
-
-                console.log('assigned this data to sound', data);
-
                 var thisSound = this,
                     data = data,
                     initTime = ac.currentTime,
