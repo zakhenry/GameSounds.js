@@ -19,6 +19,35 @@
         <script type="text/javascript">
 
 
+            var sounds = {
+
+                yesThisIsPhone: {
+                    duration: 2.0,
+                    wave: 3,
+                    freq: {
+                        points: [
+                            [0.0, 700, 0] //time, frequency, 0=set, 1=linear ramp, 2= exp ramp
+                        ]
+                    },
+                    vol: {
+                        points: [
+                            [0.0, 5.0, 0],
+                            [1.0, 5.0, 0],
+                            [1.1, 0.0, 1],
+                            [1.2, 5.0, 1]
+                        ]
+                    },
+                    mod: {
+                        wave: 1,
+                        freq: 10,
+                        gain: 100
+                    }
+                }
+
+            };
+
+            var gs = new GameSounds(sounds);
+
             function updateCanvas(ctx, sx, sy, lx, ly){
                 ctx.fillStyle="#333333";
                 ctx.fillRect(0,0,500,500);
@@ -31,9 +60,7 @@
 
             $(function(){
 
-                gameSounds.init();
-
-                for (var sound in gameSounds.sounds){
+                for (var sound in sounds){
 
                     $('button#template').clone().removeAttr('id').attr('data-sound', sound).text(sound).show().appendTo('body');
 
@@ -45,7 +72,7 @@
                 });
 
 
-                for (var soundSelected in gameSounds.sounds) break; //default to the first element of the object
+                for (var soundSelected in sounds) break; //default to the first element of the object
 
 
                 var c = document.getElementById("canvas");
@@ -57,7 +84,7 @@
 
                 var listenerX = 250, listenerY = 250;
 
-                gameSounds.playerPosition(listenerX, listenerY);
+                gs.playerPosition(listenerX, listenerY);
 
                 updateCanvas(ctx, 0, 0, listenerX, listenerY);
 
@@ -75,14 +102,14 @@
                     }
                 }).mousedown(function(e){
 
-                    currentSound = gameSounds.get(soundSelected).at(e.clientX - offset.left, e.clientY - offset.top).start();
+                    currentSound = gs.get(soundSelected).at(e.clientX - offset.left, e.clientY - offset.top).start();
 
                 }).mouseup(function(){
                     currentSound.stop();
                 });
 
                 $('#volume').change(function(){
-                    gameSounds.setVolume(Number($(this).val()));
+                    gs.setVolume(Number($(this).val()));
                 });
 
             });
