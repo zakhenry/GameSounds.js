@@ -5,461 +5,227 @@
  */
 
 
-/**
- * Initialise a sound. The parameter data is all the params that define the sound. See gamesounds.sounds for examples
- *
- * @param {Object} data
- * @param {Number} [x]
- * @param {Number} [y]
- * @constructor
- */
-function Sound(data){
-    this.ac = gameSounds.ac;
-//    this.mainVolume = gameSounds.masterGain;
-
-    this.data = data;
-    this.initTime = this.ac.currentTime;
-    this.oscillator = this.ac.createOscillator();
-    this.envelope = this.ac.createGain();
-    this.modOsc = this.ac.createOscillator();
-    this.modOscGain = this.ac.createGain();
-    this.panner = this.ac.createPanner();
-
-    this.hasRun = false;
 
 
-
-    var now = this.ac.currentTime;
-
-    /* Set values from data */
-    this.oscillator.type = this.data.wave;
-
-    for (var volNode in this.data.vol.points){
-        var type = gameSounds.getRampType(this.data.vol.points[volNode][2]);
-        this.envelope.gain[type](this.data.vol.points[volNode][1], now + this.data.vol.points[volNode][0]);
-    }
-
-    for (var freqNode in this.data.freq.points){
-        var type = gameSounds.getRampType(this.data.freq.points[freqNode][2]);
-        this.oscillator.frequency[type](this.data.freq.points[freqNode][1], now+ this.data.freq.points[freqNode][0]);
-    }
+;
+(function(){
 
 
+    /**
+     * Construct
+     */
+    function _construct(initSounds){
 
-    this.modOsc.type = this.data.mod.wave;
-    this.modOsc.frequency.value = this.data.mod.freq;
-    this.modOscGain.gain.value = this.data.mod.gain;
-    /* Connect the sounds */
-
-    this.connect();
-}
-
-/**
- * Connects the audio nodes together
- */
-Sound.prototype.connect = function(){
-    this.modOsc.connect( this.modOscGain );
-    this.modOscGain.connect( this.oscillator.frequency );	// connect tremolo to oscillator frequency
-    this.oscillator.connect(this.envelope);
-    this.envelope.connect(this.panner);
-
-//    this.panner.connect(this.mainVolume); //connect panner node to master volume
-
-    var bus = new gameSounds.audioBus();
-
-    this.panner.connect(bus.mix);
-//    bus.connect(this.ac.destination);
-
-//    this.mainVolume.connect(this.ac.destination); //connect master volume to the ouput
-};
-/**
- * Updates the game environment location. This is used in conjuction with gamesounds.ac.listener.setLocation() to
- * determine volume/pan
- *
- * @param {Number} x
- * @param {Number} y
- * @returns {Sound}
- */
-Sound.prototype.at = function(x, y){
-    var panX = (typeof x == 'number') ? x : 0;
-    var panY = (typeof y == 'number') ? y : 0;
-
-    panY*=gameSounds.distanceScale;
-    panX*=gameSounds.distanceScale;
-
-    this.panner.setPosition(panX, panY, 0);
-
-    return this;
-};
-/**
- * Starts a sound playing at specified time, if no time is specified play starts immediately
- *
- * @param {Number} [time]
- * @returns {Sound}
- */
-Sound.prototype.start = function(time){
-
-    if (this.hasRun){
-        console.log('this sound has already been run once; it must be recreated to be run again');
-        return false;
-    }
-
-    if (typeof time == 'undefined'){
-        time = this.ac.currentTime; //now
-    }
-
-    this.oscillator.start(time);
-    this.modOsc.start(time);
-
-    if (typeof this.data.duration != 'undefined'){
-        this.stop(time + this.data.duration);
-    }
-
-    return this;
-};
-/**
- * Alias function to Sound.start();
- */
-Sound.prototype.fire = function(){
-    this.start();
-};
-/**
- * Stops sound playing at a certain time. If no time is set it will stop immediately
- *
- * @param {Number} [time]
- * @returns {Sound}
- */
-Sound.prototype.stop = function(time){
-
-    if (typeof time == 'undefined'){
-        time = this.ac.currentTime; //now
-    }
-
-    this.oscillator.stop(time);
-    this.modOsc.stop(time);
-
-    this.hasRun = true;
-
-    return this;
-};
-
-/**
- * Checks if a sound is (still) playing
- * @returns {boolean}
- */
-Sound.prototype.isPlaying = function(){
-    return typeof this.data.duration == 'undefined' || (this.ac.currentTime-this.initTime) < this.data.duration; //if no duration set, it is always playing
-};
-
-var gameSounds = {
-
-    ac: new (window.AudioContext || window.webkitAudioContext),
-    masterGain: null,
-    init: function(){
-        this.masterGain =  this.ac.createGain();
-        this.masterGain.gain.value = 0.5;
-    },
-    distanceScale: 0.05,
-    setVolume: function(number){ //volume 0-100, 0 being silent
-        this.masterGain.gain.value = number/100;
-    },
-    audioBus: function(){
-
-        this.mix = gameSounds.ac.createGain(); //dummy node
-
-        var compressor = gameSounds.ac.createDynamicsCompressor(),
-            delay = gameSounds.ac.createDelayNode();
-
-        delay.delayTime.value = 0.2;
-
-        this.mix.connect(delay);
-        this.mix.connect(gameSounds.masterGain); //bypass the delay node
-        delay.connect(gameSounds.masterGain);
-        gameSounds.masterGain.connect(compressor);
-
-        compressor.connect(gameSounds.ac.destination);
-    },
-    sounds: {
-
-        rand3: {
-            duration: 1.5,
-            wave: 0,
-            freq: {
-                points: [
-                    [0.0, 900, 0], //time, frequency, 0=set, 1=linear ramp, 2= exp ramp
-                    [0.5, 400, 2],
-                    [0.5, 900, 0],
-                    [1.0, 400, 2],
-                    [1.0, 900, 0],
-                    [1.5, 400, 2]
-                ]
+        //Set up the audio context
+        var ac = new (window.AudioContext || window.webkitAudioContext),
+            sounds = initSounds,
+            masterGain = null,
+            distanceScale = 0.05,
+            setVolume = function(number){ //volume 0-100, 0 being silent
+                masterGain.gain.value = number/100;
             },
-            vol: {
-                points: [
-                    [0.0, 5.0, 0],
-                    [0.5, 0.0, 1],
-                    [0.5, 2.0, 0],
-                    [1.0, 0.0, 1],
-                    [1.0, 0.5, 0],
-                    [1.5, 0.0, 1]
-                ]
-            },
-            mod: {
-                wave: 3,
-                freq: 90,
-                gain: 100
-            }
-        },
+            audioBus = function(){
 
-        pulse: {
-            duration: 1.8,
-            wave: 0,
-            freq: {
-                points: [
-                    [0.0, 900, 0], //time, frequency, 0=set, 1=linear ramp, 2= exp ramp
-                    [1.8, 400, 2]
-                ]
-            },
-            vol: {
-                points: [
-                    [0.0, 5.0, 0],
-                    [1.7, 5.0, 0],
-                    [1.8, 1.0, 1]
-                ]
-            },
-            mod: {
-                wave: 3,
-                freq: 90,
-                gain: 100
-            }
-        },
+                this.mix = ac.createGain(); //dummy node
 
-        buzz: {
-            wave: 2,
-            freq: {
-                points: [
-                    [0.0, 300, 0] //time, frequency, 0=set, 1=linear ramp, 2= exp ramp
-                ]
-            },
-            vol: {
-                points: [
-                    [0.0, 5.0, 0]
-                ]
-            },
-            mod: {
-                wave: 3,
-                freq: 90,
-                gain: 100
-            }
-        },
+                var compressor = ac.createDynamicsCompressor(),
+                    delay = ac.createDelayNode();
 
-        playerSound: {
-            wave: 2,
-            freq: {
-                points: [
-                    [0.0, 300, 0] //time, frequency, 0=set, 1=linear ramp, 2= exp ramp
-                ]
-            },
-            vol: {
-                points: [
-                    [0.0, 1.0, 0]
-                ]
-            },
-            mod: {
-                wave: 3,
-                freq: 90,
-                gain: 100
-            }
-        },
+                delay.delayTime.value = 0.2;
 
-        otherPlayerSound: {
-            wave: 2,
-            freq: {
-                points: [
-                    [0.0, 300, 0] //time, frequency, 0=set, 1=linear ramp, 2= exp ramp
-                ]
-            },
-            vol: {
-                points: [
-                    [0.0, 5.0, 0]
-                ]
-            },
-            mod: {
-                wave: 3,
-                freq: 90,
-                gain: 100
-            }
-        },
+                this.mix.connect(delay);
+                this.mix.connect(masterGain); //bypass the delay node
+                delay.connect(masterGain);
+                masterGain.connect(compressor);
 
-        rand1: {
-            duration: 6.0,
-            wave: 0,
-            freq: {
-                points: [
-                    [0.0, 600, 0], //time, frequency, 0=set, 1=linear ramp, 2= exp ramp
-                    [1.5, 800, 1],
-                    [1.6, 700, 0],
-                    [3.0, 950, 1],
-                    [3.1, 850, 0],
-                    [4.5, 1100, 1],
-                    [6.0, 100, 2]
-                ]
-            },
-            vol: {
-                points: [
-                    [0.0, 5.0, 0],
-                    [4.0, 4.0, 1],
-                    [5.9, 0.0, 1]
-                ]
-            },
-            mod: {
-                wave: 1,
-                freq: 9,
-                gain: 100
-            }
-        },
+                compressor.connect(ac.destination);
+            };
 
-        rand2: {
-            duration: 2.0,
-            wave: 0,
-            freq: {
-                points: [
-                    [0.0, 80, 0], //time, frequency, 0=set, 1=linear ramp, 2= exp ramp
-//                                    [0.9, 50, 2],
-                    [1.0, 70, 0]
-//                                    [2.0, 40, 2]
-                ]
-            },
-            vol: {
-                points: [
-                    [0.0, 5.0, 0],
-                    [1.0, 5.0, 0],
-                    [2.0, 0.0, 1]
-                ]
-            },
-            mod: {
-                wave: 1,
-                freq: 100,
-                gain: 50
-            }
-        },
+            /**
+             * Initialise a sound. The parameter data is all the params that define the sound. See gamesounds.sounds for examples
+             *
+             * @param {Object} data
+             * @constructor
+             */
+            Sound = (function (){
 
-        yesThisIsPhone: {
-            duration: 2.0,
-            wave: 3,
-            freq: {
-                points: [
-                    [0.0, 700, 0] //time, frequency, 0=set, 1=linear ramp, 2= exp ramp
-                ]
-            },
-            vol: {
-                points: [
-                    [0.0, 5.0, 0],
-                    [1.0, 5.0, 0],
-                    [1.1, 0.0, 1],
-                    [1.2, 5.0, 1]
-                ]
-            },
-            mod: {
-                wave: 1,
-                freq: 10,
-                gain: 100
-            }
-        },
-
-        siren: {
-            duration: 2.0,
-            wave: 3,
-            freq: {
-                points: [
-                    [0.0, 700, 0] //time, frequency, 0=set, 1=linear ramp, 2= exp ramp
-                ]
-            },
-            vol: {
-                points: [
-                    [0.0, 5.0, 0]
-                ]
-            },
-            mod: {
-                wave: 3,
-                freq: 2,
-                gain: 100
-            }
-        },
-
-        alert: {
-            duration: 2.0,
-            wave: 3,
-            freq: {
-                points: [
-                    [0.0, 700, 0] //time, frequency, 0=set, 1=linear ramp, 2= exp ramp
-                ]
-            },
-            vol: {
-                points: [
-                    [0.0, 5.0, 0]
-                ]
-            },
-            mod: {
-                wave: 1,
-                freq: 2,
-                gain: 100
-            }
-        },
-
-        alert_continuous: {
-            wave: 3,
-            freq: {
-                points: [
-                    [0.0, 700, 0] //time, frequency, 0=set, 1=linear ramp, 2= exp ramp
-                ]
-            },
-            vol: {
-                points: [
-                    [0.0, 5.0, 0]
-                ]
-            },
-            mod: {
-                wave: 1,
-                freq: 2,
-                gain: 100
-            }
-        }
+                function _constructSound(data){
 
 
-    },
+                    console.log('assigned this data to sound', data);
 
-    get: function(sound){
-        var data = gameSounds.sounds[sound]; //a copy
+                    var thisSound = this,
+                        data = data,
+                        initTime = ac.currentTime,
+                        oscillator = ac.createOscillator(),
+                        envelope = ac.createGain(),
+                        modOsc = ac.createOscillator(),
+                        modOscGain = ac.createGain(),
+                        panner = ac.createPanner(),
+                        hasRun = false,
+                        now = ac.currentTime,
+                        getRampType = function(number){
+                            var type = null;
+                            switch (number){
+                                case 0:
+                                    type = 'setValueAtTime';
+                                    break;
+                                case 1:
+                                    type = 'linearRampToValueAtTime';
+                                    break;
+                                case 2:
+                                    type = 'exponentialRampToValueAtTime';
+                                    break;
+                                default:
+                                    type = 'setValueAtTime';
+                            }
 
-        var sound = new Sound(data);
+                            return type;
+                        },
+                    /**
+                     * Connects the audio nodes together
+                     */
+                        connect = function(){
+                            modOsc.connect(modOscGain );
+                            modOscGain.connect(oscillator.frequency );	// connect tremolo to oscillator frequency
+                            oscillator.connect(envelope);
+                            envelope.connect(panner);
 
-        return sound;
-    },
+//                            var bus = new gs.audioBus();
+//                            thisSound.panner.connect(bus.mix);
 
-    getRampType: function(number){
-        var type = null;
-        switch (number){
-            case 0:
-                type = 'setValueAtTime';
-                break;
-            case 1:
-                type = 'linearRampToValueAtTime';
-                break;
-            case 2:
-                type = 'exponentialRampToValueAtTime';
-                break;
-            default:
-                type = 'setValueAtTime';
-        }
+                            panner.connect(ac.destination);
 
-        return type;
-    },
+                        };
 
-    playerPosition: function(x, y){
-        x*=this.distanceScale;
-        y*=this.distanceScale;
-        this.ac.listener.setPosition(x, y, 0);
-    }
+                    oscillator.type = data.wave;
 
-};
+                    for (var volNode in data.vol.points){
+                        var type = getRampType(data.vol.points[volNode][2]);
+                        envelope.gain[type](data.vol.points[volNode][1], now + data.vol.points[volNode][0]);
+                    }
+
+                    for (var freqNode in data.freq.points){
+                        var type = getRampType(data.freq.points[freqNode][2]);
+                        oscillator.frequency[type](data.freq.points[freqNode][1], now+ data.freq.points[freqNode][0]);
+                    }
+
+
+
+                    modOsc.type = data.mod.wave;
+                    modOsc.frequency.value = data.mod.freq;
+                    modOscGain.gain.value = data.mod.gain;
+                    /* Connect the sounds */
+
+                    connect();
+                    /**
+                     * Updates the game environment location. This is used in conjuction with gamesounds.ac.listener.setLocation() to
+                     * determine volume/pan
+                     *
+                     * @param {Number} x
+                     * @param {Number} y
+                     * @returns {Sound}
+                     */
+                    this.at = function(x, y){
+                        var panX = (typeof x == 'number') ? x : 0;
+                        var panY = (typeof y == 'number') ? y : 0;
+
+                        panY*=distanceScale;
+                        panX*=distanceScale;
+
+                        panner.setPosition(panX, panY, 0);
+
+                        return thisSound;
+                    };
+                    /**
+                     * Starts a sound playing at specified time, if no time is specified play starts immediately
+                     *
+                     * @param {Number} [time]
+                     * @returns {Sound}
+                     */
+                    this.start = function(time){
+
+                        if (hasRun){
+                            console.log('this sound has already been run once; it must be recreated to be run again');
+                            return false;
+                        }
+
+                        if (typeof time == 'undefined'){
+                            time = ac.currentTime; //now
+                        }
+
+                        oscillator.start(time);
+                        modOsc.start(time);
+
+                        if (typeof data.duration != 'undefined'){
+                            thisSound.stop(time + data.duration);
+                        }
+
+                        return thisSound;
+                    };
+                    /**
+                     * Alias function to Sound.start();
+                     */
+                    this.fire = function(){
+                        thisSound.start();
+                        return thisSound;
+                    };
+                    /**
+                     * Stops sound playing at a certain time. If no time is set it will stop immediately
+                     *
+                     * @param {Number} [time]
+                     * @returns {Sound}
+                     */
+                    this.stop = function(time){
+
+                        if (typeof time == 'undefined'){
+                            time = ac.currentTime; //now
+                        }
+
+                        oscillator.stop(time);
+                        modOsc.stop(time);
+
+                        hasRun = true;
+
+                        return thisSound;
+                    };
+
+                    /**
+                     * Checks if a sound is (still) playing
+                     * @returns {boolean}
+                     */
+                    this.isPlaying = function(){
+                        return typeof data.duration == 'undefined' || (ac.currentTime-initTime) < data.duration; //if no duration set, it is always playing
+                    };
+
+                }
+
+                return _constructSound;
+            })();
+
+
+
+        this.playerPosition = function(x, y){
+            x*=distanceScale;
+            y*=distanceScale;
+            ac.listener.setPosition(x, y, 0);
+        };
+
+        this.getSound = function(soundName){
+            return new Sound(sounds[soundName]);
+        };
+
+
+
+    } //end GameSounds Constructork
+
+
+    this.GameSounds = _construct;
+
+}).call(function () {
+    return this || (typeof window !== 'undefined' ? window : global);
+}());
+
+
+
+
