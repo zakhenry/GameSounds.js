@@ -1,5 +1,6 @@
 /**
- * gamesounds.js Game sounds for the javascript games, call a sound with gameSounds.triggerSound('soundname')
+ * gamesounds.js
+ * Game sounds for the javascript games, call a sound with gameSounds.triggerSound('soundname')
  *
  * @author Zak Henry - 2013
  */
@@ -18,9 +19,10 @@
      */
     this.GameSounds = function (initSounds){
 
+        this.sounds = initSounds; //public
         //Set up the audio context
         var ac = new (window.AudioContext || window.webkitAudioContext),
-            sounds = initSounds,
+//            sounds = initSounds,
             masterGain = ac.createGain(),
             mix = ac.createGain(),
             distanceScale = 0.05,
@@ -218,7 +220,7 @@
          * @returns {Sound}
          */
         this.get = function(soundName){
-            return new Sound(sounds[soundName]);
+            return new Sound(this.sounds[soundName]);
         };
 
         /**
