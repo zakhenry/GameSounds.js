@@ -11,15 +11,8 @@
     <body>
 
 
-        <button class="selectSound" id="template" style="display: none;"></button>
-
         <p>Click on the canvas to trigger a sound, move the mouse to change the position of the sound emitter</p>
-        <!--<canvas id="canvas" width="500" height="500"></canvas>-->
         <div id="sound_builder"></div>
-        <br />
-        Volume: <input type="range" id="volume" min="0" max="100" />
-
-
 
         <script type="text/javascript">
 
@@ -277,78 +270,7 @@
             var soundBuilder = new SoundBuilder(document.getElementById('sound_builder'));
             soundBuilder.createBuildInterface(1000, 500);
             soundBuilder.createTestInterface(500, 500);
-/*
-            var gs = new GameSounds(sounds);
 
-            function updateCanvas(ctx, sx, sy, lx, ly){
-                ctx.fillStyle="#333333";
-                ctx.fillRect(0,0,500,500);
-                ctx.fillStyle="#ff0000";
-                ctx.fillRect(sx-3, sy-3, 6, 6);
-
-                ctx.fillStyle="#3f3fff";
-                ctx.fillRect(lx-3, ly-3, 6, 6);
-            }
-
-
-
-            $(function(){
-
-                for (var sound in sounds){
-
-                    $('button#template').clone().removeAttr('id').attr('data-sound', sound).text(sound).show().appendTo('body');
-
-                }
-
-                $('button.selectSound').click(function(){
-
-                    soundSelected = $(this).attr('data-sound');
-                });
-
-
-                for (var soundSelected in sounds) break; //default to the first element of the object
-
-
-                var c = document.getElementById("canvas");
-                var ctx = c.getContext("2d");
-
-                var mouseX, mouseY;
-
-                var offset = $('#canvas').offset();
-
-                var listenerX = 250, listenerY = 250;
-
-                gs.playerPosition(listenerX, listenerY);
-
-                updateCanvas(ctx, 0, 0, listenerX, listenerY);
-
-                var currentSound = false;
-
-                $('#canvas').mouseenter(function(){
-                    mouseInCanvas = true;
-                }).mouseleave(function(){
-                    mouseInCanvas = false;
-                }).mousemove(function(e){
-                    updateCanvas(ctx, e.clientX - offset.left, e.clientY - offset.top, listenerX, listenerY);
-
-                    if (currentSound && currentSound.isPlaying()){
-                        currentSound.at(e.clientX - offset.left, e.clientY - offset.top);
-                    }
-                }).mousedown(function(e){
-
-                    currentSound = gs.get(soundSelected).at(e.clientX - offset.left, e.clientY - offset.top).start();
-
-                }).mouseup(function(){
-                    currentSound.stop();
-                });
-
-                $('#volume').change(function(){
-                    gs.setVolume(Number($(this).val()));
-                });
-
-            });
-
-        */
 
         </script>
     </body>
