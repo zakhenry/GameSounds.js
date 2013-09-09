@@ -12,9 +12,11 @@
 
 
     /**
-     * Construct
+     *
+     * @param initSounds
+     * @constructor
      */
-    function _construct(initSounds){
+    this.GameSounds = function (initSounds){
 
         //Set up the audio context
         var ac = new (window.AudioContext || window.webkitAudioContext),
@@ -29,7 +31,7 @@
 
                 delay.delayTime.value = 0.2;
 
-                mix.connect(delay);
+//                mix.connect(delay);
                 mix.connect(masterGain); //bypass the delay node
                 delay.connect(masterGain);
                 masterGain.connect(compressor);
@@ -37,15 +39,16 @@
                 compressor.connect(ac.destination);
             };
 
-        /**
-         * Initialise a sound. The parameter data is all the params that define the sound. See gamesounds.sounds for examples
-         *
-         * @param {Object} data
-         * @constructor
-         */
+
         Sound = (function (){
 
-            function _constructSound(data){
+            /**
+             * Initialise a sound. The parameter data is all the params that define the sound. See gamesounds.sounds for examples
+             *
+             * @param {Object} data
+             * @constructor
+             */
+            return function (data){
 
                 var thisSound = this,
                     data = data,
@@ -193,33 +196,44 @@
 
             }
 
-            return _constructSound;
         })();
 
 
-
+        /**
+         *
+         * @param x
+         * @param y
+         * @returns {*}
+         */
         this.playerPosition = function(x, y){
             x*=distanceScale;
             y*=distanceScale;
             ac.listener.setPosition(x, y, 0);
+            return this;
         };
 
+        /**
+         *
+         * @param soundName
+         * @returns {Sound}
+         */
         this.get = function(soundName){
             return new Sound(sounds[soundName]);
         };
 
+        /**
+         *
+         * @param number
+         * @returns {*}
+         */
         this.setVolume = function(number){ //volume 0-100, 0 being silent
             masterGain.gain.value = number/100;
+            return this;
         };
 
-    } //end GameSounds Constructor
+    }; //end GameSounds Constructor
 
-
-    this.GameSounds = _construct;
-
-}).call(function () {
-    return this || (typeof window !== 'undefined' ? window : global);
-}());
+})();
 
 
 
