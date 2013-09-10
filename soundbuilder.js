@@ -38,7 +38,7 @@
                     }
                 },
                 yesThisIsPhone: {
-                    duration: 2.0,
+                    duration: 5.0,
                     wave: 3,
                     freq: {
                         points: [
@@ -65,7 +65,7 @@
 
                 return function(width, height){
 
-                    var self = this,
+                    var bi = this,
                         canvas = document.createElement('canvas'),
                         canvasId = 'sound_builder_canvas',
                         ctx = canvas.getContext("2d"),
@@ -92,6 +92,14 @@
                         elements = {
                             freq: {},
                             vol: {},
+                            wave: null,
+                            duration: null,
+                            mod: {
+                                wave: null,
+                                freq: null,
+                                gain: null
+                            },
+
                             toGameSoundsObject: function(){
 
                                 console.log('creating new gamesounds object');
@@ -107,8 +115,8 @@
                                 }
 
                                 return {
-                                    wave: 3,
-                                    duration: 5,
+                                    wave: this.wave,
+                                    duration: this.duration,
                                     freq: {
                                         points: freqPoints
                                     },
@@ -116,9 +124,9 @@
                                         points: volPoints
                                     },
                                     mod: {
-                                        wave: 3,
-                                        freq: 2,
-                                        gain: 0
+                                        wave: this.mod.wave,
+                                        freq: this.mod.freq,
+                                        gain: this.mod.gain
                                     }
                                 };
                             },
@@ -202,38 +210,41 @@
 
                         var lineX = 0, lineY = 0;
 
+                        var elementsToDraw = ['freq', 'vol'];
+
                         for(var soundElementType in elements){
 
+                            if (elementsToDraw.indexOf(soundElementType) >= 0){
+
+                                var first = true;
+                                for(var soundElement in elements[soundElementType]){
 
 
-                            var first = true;
-                            for(var soundElement in elements[soundElementType]){
+                                    var element = elements[soundElementType][soundElement];
+                                    element.drawElement(ctx);
 
-
-                                var element = elements[soundElementType][soundElement];
-                                element.drawElement(ctx);
-
-                                ctx.moveTo(lineX, lineY);
-                                if (first){
-                                    ctx.beginPath();
-                                    first = false;
+                                    ctx.moveTo(lineX, lineY);
+                                    if (first){
+                                        ctx.beginPath();
+                                        first = false;
+                                    }
+                                    lineX = element.cX;
+                                    lineY = element.cY;
+                                    ctx.lineTo(lineX, lineY);
                                 }
-                                lineX = element.cX;
-                                lineY = element.cY;
-                                ctx.lineTo(lineX, lineY);
-                            }
 
-                            switch(soundElementType){
-                                case 'freq':
-                                    ctx.strokeStyle = '#7f720a';
-                                    break;
-                                case 'vol':
-                                    ctx.strokeStyle = '#63ff92';
-                                    break;
-                            }
+                                switch(soundElementType){
+                                    case 'freq':
+                                        ctx.strokeStyle = '#7f720a';
+                                        break;
+                                    case 'vol':
+                                        ctx.strokeStyle = '#63ff92';
+                                        break;
+                                }
 
 
-                            ctx.stroke();
+                                ctx.stroke();
+                            } //end if draw element
 
                         }
 
@@ -247,7 +258,7 @@
                         mouseX = quantiseCoordinates( event.clientX - canvasOffset.left + window.scrollX );
                         mouseY = quantiseCoordinates( event.clientY - canvasOffset.top + window.scrollY );
 
-                        self.draw();
+                        bi.draw();
                     };
 
                     canvas.onmousedown = function(event){
@@ -270,7 +281,7 @@
                         }
 
 
-                        self.draw();
+                        bi.draw();
                     };
 
                     document.onkeydown = function(event) {
@@ -287,7 +298,7 @@
                     var SoundElement = (function(){
 
                         return function(type){
-                            var  self = this;
+                            var  se = this;
 
 
                             this.cX = null;
@@ -309,7 +320,7 @@
                                 }
 
 
-                                console.log('adding node of type ' + self.type + ' with time at '+time+' with magnitude of '+magnitude+'at canvas position '+this.cX+','+this.cY)
+                                console.log('adding node of type ' + se.type + ' with time at '+time+' with magnitude of '+magnitude+'at canvas position '+this.cX+','+this.cY)
 
                                 return this;
                             };
@@ -317,9 +328,9 @@
                             this.at = function(canvasX, canvasY){ //set based on the canvas
 
                                 if (type == 'freq'){
-                                    return self.set(timeScale(canvasX, false), freqScale(canvasY), false);
+                                    return se.set(timeScale(canvasX, false), freqScale(canvasY), false);
                                 }else if (type == 'vol'){
-                                    return self.set(timeScale(canvasX, false), volScale(canvasY), false);
+                                    return se.set(timeScale(canvasX, false), volScale(canvasY), false);
                                 }
 
 
@@ -344,6 +355,9 @@
                     this.loadSound = function(soundData){
                         elements.freq = {};
                         elements.vol = {}; //clear data
+                        elements.wave = soundData.wave;
+                        elements.duration = soundData.duration;
+                        elements.mod = soundData.mod;
 
                         console.log(soundData);
 
@@ -367,12 +381,15 @@
 
                         }
 
-                        self.draw();
+                        console.log('loaded', soundData, elements);
+
+                        bi.draw();
+
                     };
 
 
-                    self.loadSound(gs.sounds['example']);
-                    self.draw();
+                    bi.loadSound(gs.sounds['example']);
+                    bi.draw();
 
 
                 };
