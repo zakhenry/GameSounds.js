@@ -14,9 +14,10 @@
      *
      * @constructor
      */
-    this.SoundBuilder = function(parentElement){
+    this.SoundBuilder = function(parentElement, BIwidth, BIheight, TIwidth, TIheight){
 
-        var gs = new GameSounds({
+        var sb = this,
+            gs = new GameSounds({
             example: {"wave":2,"duration":5,"freq":{"points":[[0,874,1],[0.6,874,1],[1.2,912,1],[1.6,114,1],[2.1,0,1]]},"vol":{"points":[[0,0,1],[0.1,1,1],[0.2,0.08,1],[0.3,0.08,1],[0.4,0.88,1],[0.5,0.88,1],[0.8,0.08,1],[1,0.8,1],[2.7,0,1]]},"mod":{"wave":3,"freq":2,"gain":0}},
             siren: {
                 wave: 3,
@@ -454,13 +455,8 @@
             }
         })();
 
-        this.createBuildInterface = function(width, height){
-            return new BuildInterface(width, height);
-        };
-
-        this.createTestInterface = function(width, height){
-            return new TestInterface(width, height);
-        };
+        this.buildInterface = new BuildInterface(BIwidth, BIheight);
+        this.testInterface = new TestInterface(TIwidth, TIheight);
 
 
 
