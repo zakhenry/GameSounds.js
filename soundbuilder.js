@@ -17,36 +17,7 @@
     this.SoundBuilder = function(parentElement){
 
         var gs = new GameSounds({
-            example: {
-                duration: 1.5,
-                wave: 0,
-                freq: {
-                    points: [
-                        [0.0, 900, 0], //time, frequency, 0=set, 1=linear ramp, 2= exp ramp
-                        [0.5, 400, 2],
-                        [0.6, 900, 2],
-                        [1.0, 400, 2],
-                        [1.1, 900, 2],
-                        [1.5, 400, 2],
-                        [5.0, 300, 2]
-                    ]
-                },
-                vol: {
-                    points: [
-                        [0.0, 5.0, 0],
-                        [0.5, 0.0, 1],
-                        [0.5, 2.0, 0],
-                        [1.0, 0.0, 1],
-                        [1.0, 3.5, 0],
-                        [5.0, 0.0, 2]
-                    ]
-                },
-                mod: {
-                    wave: 3,
-                    freq: 90,
-                    gain: 100
-                }
-            },
+            example: {"wave":2,"duration":5,"freq":{"points":[[0,874,1],[0.6,874,1],[1.2,912,1],[1.6,114,1],[2.1,0,1]]},"vol":{"points":[[0,0,1],[0.1,1,1],[0.2,0.08,1],[0.3,0.08,1],[0.4,0.88,1],[0.5,0.88,1],[0.8,0.08,1],[1,0.8,1],[2.7,0,1]]},"mod":{"wave":3,"freq":2,"gain":0}},
             siren: {
                 wave: 3,
                 freq: {
@@ -102,24 +73,35 @@
 
                             console.log('creating new gamesounds object');
 
+                            var freqPoints = [], volPoints = [];
+
+                            for (var timePoint in elements.freq){
+                                freqPoints.push([elements.freq[timePoint].time, elements.freq[timePoint].magnitude, 1]);
+                            }
+
+                            for (var timePoint in elements.vol){
+                                volPoints.push([elements.vol[timePoint].time, elements.vol[timePoint].magnitude, 1]);
+                            }
+
                             return {
                                 wave: 3,
+                                duration: 5,
                                 freq: {
-                                    points: [
-                                        [0.0, 700, 0] //time, frequency, 0=set, 1=linear ramp, 2= exp ramp
-                                    ]
+                                    points: freqPoints
                                 },
                                 vol: {
-                                    points: [
-                                        [0.0, 5.0, 0]
-                                    ]
+                                    points: volPoints
                                 },
                                 mod: {
                                     wave: 3,
                                     freq: 2,
-                                    gain: 100
+                                    gain: 0
                                 }
                             };
+                        },
+                        toJsonString: function(){
+                            var object = this.toGameSoundsObject();
+                            return JSON.stringify(object);
                         }
                     },
                     limits = {
@@ -132,7 +114,7 @@
                             lower: 50
                         },
                         vol: {
-                            upper: 5,
+                            upper: 1,
                             lower: 0
                         }
                     },
@@ -275,21 +257,26 @@
                         var newSound = gs.set(elements.toGameSoundsObject()).fire();
 
                         console.log(newSound);
+                        console.log(elements.toJsonString());
                     }
                 };
 
                 var SoundElement = (function(){
 
                     return function(type){
-                        var time, magnitude, self = this
-                        ;
+                        var  self = this;
 
 
                         this.cX = null;
                         this.cY = null;
+                        this.time = null;
+                        this.magnitude = null;
                         this.type = type;
 
                         this.set = function(time, magnitude){ //set based on the values
+
+                            this.time = time;
+                            this.magnitude = magnitude;
 
                             this.cX = quantiseCoordinates(timeScale(time, true));
                             if (type == 'freq'){
