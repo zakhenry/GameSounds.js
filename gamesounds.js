@@ -233,6 +233,15 @@
             return this;
         };
 
+        /**
+         *
+         * @param soundData
+         * @returns {Sound}
+         */
+        this.set = function(soundData){
+            return new Sound(soundData);
+        };
+
     }; //end GameSounds Constructor
 
 })();

@@ -97,7 +97,30 @@
                     currentTool = 'vol',
                     elements = {
                         freq: {},
-                        vol: {}
+                        vol: {},
+                        toGameSoundsObject: function(){
+
+                            console.log('creating new gamesounds object');
+
+                            return {
+                                wave: 3,
+                                freq: {
+                                    points: [
+                                        [0.0, 700, 0] //time, frequency, 0=set, 1=linear ramp, 2= exp ramp
+                                    ]
+                                },
+                                vol: {
+                                    points: [
+                                        [0.0, 5.0, 0]
+                                    ]
+                                },
+                                mod: {
+                                    wave: 3,
+                                    freq: 2,
+                                    gain: 100
+                                }
+                            };
+                        }
                     },
                     limits = {
                         time: {
@@ -158,7 +181,14 @@
                     ctx.fillStyle="#222222";
                     ctx.fillRect(0,0,canvasWidth,canvasHeight);
 
-                    ctx.fillStyle="#a7ef01";
+                    switch(currentTool){
+                        case 'freq':
+                            ctx.fillStyle="#773a0e";
+                            break;
+                        case 'vol':
+                            ctx.fillStyle="#83a9f0";
+                            break;
+                    }
                     ctx.fillRect(mouseX-10, mouseY-10, 20, 20);
 
                     ctx.lineWidth = 5;
@@ -204,7 +234,9 @@
 
                 };
 
-
+                canvas.oncontextmenu = function(){
+                    return false;
+                };
 
                 canvas.onmousemove = function(){
                     mouseX = quantiseCoordinates( event.clientX - canvasOffset.left + window.scrollX );
@@ -213,16 +245,38 @@
                     self.draw();
                 };
 
-                canvas.onmousedown = function(){
-                    var newSoundElement = new SoundElement(currentTool).at(mouseX, mouseY);
-                    elements[currentTool][mouseX] = newSoundElement; //replace the mouseY coord (cant be more than one stacked)
+                canvas.onmousedown = function(event){
 
-                    console.log(elements);
+                    console.log('mousedownevent', event)
+
+                    if (event.which == 1){ //left click
+
+
+                        if (typeof elements[currentTool][mouseX] == "object" && elements[currentTool][mouseX].cY == mouseY){
+                            delete elements[currentTool][mouseX];
+                        }else{
+                            var newSoundElement = new SoundElement(currentTool).at(mouseX, mouseY);
+                            elements[currentTool][mouseX] = newSoundElement; //replace the mouseY coord (cant be more than one stacked)
+                        }
+
+                        console.log(elements);
+                    }else if (event.which == 3){
+                        currentTool = currentTool == 'freq' ? 'vol':'freq';
+                    }
+
 
                     self.draw();
                 };
 
+                document.onkeydown = function(event) {
 
+                    console.log(event.keyCode);
+                    if (event.keyCode == 32) { //spacebar
+                        var newSound = gs.set(elements.toGameSoundsObject()).fire();
+
+                        console.log(newSound);
+                    }
+                };
 
                 var SoundElement = (function(){
 
