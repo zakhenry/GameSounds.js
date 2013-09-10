@@ -27,7 +27,8 @@
                         [0.6, 900, 2],
                         [1.0, 400, 2],
                         [1.1, 900, 2],
-                        [1.5, 400, 2]
+                        [1.5, 400, 2],
+                        [5.0, 300, 2]
                     ]
                 },
                 vol: {
@@ -36,8 +37,8 @@
                         [0.5, 0.0, 1],
                         [0.5, 2.0, 0],
                         [1.0, 0.0, 1],
-                        [1.0, 0.5, 0],
-                        [1.5, 0.0, 1]
+                        [1.0, 3.5, 0],
+                        [5.0, 0.0, 2]
                     ]
                 },
                 mod: {
@@ -74,8 +75,8 @@
                     canvas = document.createElement('canvas'),
                     canvasId = 'sound_builder_canvas',
                     ctx = canvas.getContext("2d"),
-                    canvasWidth = null,
-                    canvasHeight = null,
+                    canvasWidth = width,
+                    canvasHeight = height,
                     canvasOffset = null,
                     mouseX,
                     mouseY,
@@ -93,14 +94,54 @@
 
                         return quantised;
                     },
-                    currentTool = 'freq',
+                    currentTool = 'vol',
                     elements = {
                         freq: {},
                         vol: {}
+                    },
+                    limits = {
+                        time: {
+                            upper: 5,
+                            lower: 0
+                        },
+                        freq: {
+                            upper: 1000,
+                            lower: 50
+                        },
+                        vol: {
+                            upper: 5,
+                            lower: 0
+                        }
+                    },
+                    getScale = function(magnitude, limit, axis, flip, toCanvas){
+                        var range = limit.upper - limit.lower;
+                        var scale = axis/range;
+
+                        if (toCanvas){
+                            if (flip){
+                                return axis - (magnitude * scale);
+                            }else{
+                                return magnitude * scale;
+                            }
+                        }else{
+                            if (flip){
+                                return (axis - magnitude) / scale;
+                            }else{
+                                return magnitude / scale;
+                            }
+                        }
+
+                    },
+                    timeScale = function(time, toCanvas){
+                        return getScale(time, limits.time, canvasWidth, false, toCanvas);
+                    },
+                    freqScale = function(freq, toCanvas){
+                        return getScale(freq, limits.freq, canvasHeight, true, toCanvas);
+                    },
+                    volScale = function(vol, toCanvas){
+                        return getScale(vol, limits.vol, canvasHeight, true, toCanvas);
                     }
                     ;
-
-
 
                 canvasWidth = width;
                 canvasHeight = height;
@@ -122,26 +163,44 @@
 
                     ctx.lineWidth = 5;
                     ctx.lineCap = 'round';
-                    ctx.beginPath();
+
 
                     var lineX = 0, lineY = 0;
 
                     for(var soundElementType in elements){
 
+
+
+                        var first = true;
                         for(var soundElement in elements[soundElementType]){
+
+
                             var element = elements[soundElementType][soundElement];
                             element.drawElement(ctx);
 
                             ctx.moveTo(lineX, lineY);
+                            if (first){
+                                ctx.beginPath();
+                                first = false;
+                            }
                             lineX = element.cX;
                             lineY = element.cY;
                             ctx.lineTo(lineX, lineY);
                         }
 
+                        switch(soundElementType){
+                            case 'freq':
+                                ctx.strokeStyle = '#7f720a';
+                                break;
+                            case 'vol':
+                                ctx.strokeStyle = '#63ff92';
+                                break;
+                        }
+
+
+                        ctx.stroke();
+
                     }
-                    ctx.strokeStyle = '#7f720a';
-                    ctx.stroke();
-                    ctx.closePath();
 
                 };
 
@@ -163,26 +222,54 @@
                     self.draw();
                 };
 
-                self.draw();
+
 
                 var SoundElement = (function(){
 
                     return function(type){
-                        var time, magnitude
+                        var time, magnitude, self = this
                         ;
+
 
                         this.cX = null;
                         this.cY = null;
+                        this.type = type;
 
-                        this.at = function(x, y){
-                            this.cX = x;
-                            this.cY = y;
+                        this.set = function(time, magnitude){ //set based on the values
+
+                            this.cX = quantiseCoordinates(timeScale(time, true));
+                            if (type == 'freq'){
+                                this.cY = quantiseCoordinates(freqScale(magnitude, true));
+                            }else if (type == 'vol'){
+                                this.cY = quantiseCoordinates(volScale(magnitude, true));
+                            }
+
+
+                            console.log('adding node of type ' + self.type + ' with time at '+time+' with magnitude of '+magnitude+'at canvas position '+this.cX+','+this.cY)
 
                             return this;
                         };
 
+                        this.at = function(canvasX, canvasY){ //set based on the canvas
+
+                            if (type == 'freq'){
+                                return self.set(timeScale(canvasX, false), freqScale(canvasY), false);
+                            }else if (type == 'vol'){
+                                return self.set(timeScale(canvasX, false), volScale(canvasY), false);
+                            }
+
+
+                        };
+
                         this.drawElement = function(ctx){
-                            ctx.fillStyle="#773a0e";
+                            switch(type){
+                                case 'freq':
+                                    ctx.fillStyle="#773a0e";
+                                break;
+                                case 'vol':
+                                    ctx.fillStyle="#83a9f0";
+                                break;
+                            }
                             ctx.fillRect(this.cX-10, this.cY-10, 20, 20);
                         };
 
@@ -197,17 +284,27 @@
                     for(var freqId in soundData.freq.points){
                         var freqElement = soundData.freq.points[freqId];
 
-                        console.log(soundData.freq, freqElement);
+                        var canvasX = quantiseCoordinates(timeScale(freqElement[0], true));
 
-                        var newSoundElement = new SoundElement(currentTool).at(freqElement[0] * 300, freqElement[1]/2);
-                        elements[currentTool][freqElement[0] * 300] = newSoundElement;
+                        var newSoundElement = new SoundElement('freq').set(freqElement[0], freqElement[1]);
+                        elements['freq'][canvasX] = newSoundElement;
 
-                        console.log(elements);
+                    }
+
+                    for(var volId in soundData.vol.points){
+                        var volElement = soundData.vol.points[volId];
+
+                        var canvasX = quantiseCoordinates(timeScale(volElement[0], true));
+
+                        var newSoundElement = new SoundElement('vol').set(volElement[0], volElement[1]);
+                        elements['vol'][canvasX] = newSoundElement;
+
                     }
                 };
 
 
                 self.loadSound('example');
+                self.draw();
 
 
             };
