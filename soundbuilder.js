@@ -16,6 +16,65 @@
      */
     this.SoundBuilder = function(parentElement, BIwidth, BIheight, TIwidth, TIheight){
 
+
+
+        /**
+         * Helper function to create a <select> input
+         * @param appendNode
+         * @param id
+         * @param selectOptions
+         * @param labelText
+         * @param onchangefunction
+         */
+        this.addSelect = function(appendNode, id, selectOptions, labelText, onchangefunction){
+            var select = document.createElement('select'),
+                label = document.createElement('label');
+
+            select.setAttribute('id', id);
+            label.setAttribute('for', id);
+
+            label.innerText = labelText;
+
+            for(var optionId in selectOptions){
+                var option = document.createElement('option');
+                option.setAttribute('val', optionId);
+                option.innerText = selectOptions[optionId];
+
+                select.appendChild(option);
+            }
+
+            appendNode.appendChild(label);
+            appendNode.appendChild(select);
+
+            select.onchange = onchangefunction;
+        };
+
+        /**
+         * Helper function to create an <input type="slider"> element
+         * @param appendNode
+         * @param id
+         * @param min
+         * @param max
+         * @param labelText
+         * @param onchangefunction
+         */
+        this.addSlider = function (appendNode, id, min, max, labelText, onchangefunction){
+            var slider = document.createElement('input'),
+                sliderLabel = document.createElement('label');
+            slider.setAttribute('id', id);
+            slider.setAttribute('type', 'range');
+            slider.setAttribute('min', min);
+            slider.setAttribute('max', max);
+            sliderLabel.innerText = labelText;
+            sliderLabel.setAttribute('for', id);
+
+            appendNode.appendChild(sliderLabel);
+            appendNode.appendChild(slider);
+
+            slider.onchange = onchangefunction;
+        };
+
+
         var sb = this,
             gs = new GameSounds({
                 example: {"wave":2,"duration":5,"freq":{"points":[[0,874,1],[0.6,874,1],[1.2,912,1],[1.6,114,1],[2.1,0,1]]},"vol":{"points":[[0,0,1],[0.1,1,1],[0.2,0.08,1],[0.3,0.08,1],[0.4,0.88,1],[0.5,0.88,1],[0.8,0.08,1],[1,0.8,1],[2.7,0,1]]},"mod":{"wave":3,"freq":2,"gain":0}},
@@ -100,6 +159,8 @@
                                 gain: null
                             },
 
+                            loop: false,
+
                             toGameSoundsObject: function(){
 
                                 console.log('creating new gamesounds object');
@@ -114,7 +175,7 @@
                                     volPoints.push([elements.vol[timePoint].time, elements.vol[timePoint].magnitude, 1]);
                                 }
 
-                                return {
+                                var soundData =  {
                                     wave: this.wave,
                                     duration: this.duration,
                                     freq: {
@@ -129,6 +190,12 @@
                                         gain: this.mod.gain
                                     }
                                 };
+
+                                if (!this.loop){
+                                    soundData.duration = elements.vol[timePoint].time; //the last one
+                                }
+
+                                return soundData;
                             },
                             toJsonString: function(){
                                 var object = this.toGameSoundsObject();
@@ -296,23 +363,31 @@
                     };
 
                     var addControls = function(){
-                        var waveSelect = document.createElement('select');
+
+
+
                         var waveOptions = {0:'sine',1:'square',2:'triangle',3:'sawtooth'};
 
-                        for(var waveId in waveOptions){
-                            var waveOption = document.createElement('option');
-                            waveOption.setAttribute('val', waveId);
-                            waveOption.innerText = waveOptions[waveId];
-                            waveSelect.appendChild(waveOption);
-                        }
+                        sb.addSelect(parentElement, 'soundBuilder-SoundLoopSelect', {true:'True',false:'False'}, 'Loop sound: ', function(event){
+                            elements.loop = event.target.selectedIndex;
+                        });
 
-                        waveSelect.onchange = function(event){
-                            console.log(event);
-                            var selectedWave = event.target.selectedIndex;
-                            elements.wave = selectedWave;
-                        };
+                        sb.addSelect(parentElement, 'soundBuilder-WaveSelect', waveOptions, 'Oscillator wave shape: ', function(event){
+                            elements.wave = event.target.selectedIndex;
+                        });
 
-                        parentElement.appendChild(waveSelect);
+                        sb.addSelect(parentElement, 'soundBuilder-ModWaveSelect', waveOptions, 'Oscillator Modulator wave shape: ', function(event){
+                            elements.mod.wave = event.target.selectedIndex;
+                        });
+
+                        sb.addSlider(parentElement, 'soundBuilder-ModOscFreqSlider', 0, 100, 'Oscillator Modulator Frequency', function(event){
+                            elements.mod.freq = event.srcElement.value;
+                        });
+
+                        sb.addSlider(parentElement, 'soundBuilder-ModOscGainSlider', 0, 100, 'Oscillator Modulator Gain', function(event){
+                            elements.mod.gain = event.srcElement.value;
+                        });
+
                     }();
 
                     var SoundElement = (function(){
@@ -489,18 +564,9 @@
                         testSoundData = soundData;
                     };
 
-                    this.createVolumeSlider = function(){
-                        var volumeSlider = document.createElement('input');
-                        volumeSlider.setAttribute('type', 'range')
-                        volumeSlider.setAttribute('min', 0);
-                        volumeSlider.setAttribute('max', 100);
-                        container.appendChild(volumeSlider);
-
-                        volumeSlider.onchange = function(event){
-                            var volume = event.srcElement.value;
-                            gs.setVolume(volume);
-                        }
-                    }();
+                    sb.addSlider(container, 'soundBuilder-VolumeSlider', 0, 100, "Master volume: ", function(event){
+                        gs.setVolume(event.srcElement.value);
+                    });
 
                     self.updateListenerPosition(canvasWidth/2, canvasHeight/2); //default to middle of canvas
 
@@ -525,7 +591,6 @@
                 };
             }
         }();
-
 
 
     };
