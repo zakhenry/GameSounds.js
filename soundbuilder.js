@@ -295,12 +295,30 @@
                         }
                     };
 
+                    var addControls = function(){
+                        var waveSelect = document.createElement('select');
+                        var waveOptions = {0:'sine',1:'square',2:'triangle',3:'sawtooth'};
+
+                        for(var waveId in waveOptions){
+                            var waveOption = document.createElement('option');
+                            waveOption.setAttribute('val', waveId);
+                            waveOption.innerText = waveOptions[waveId];
+                            waveSelect.appendChild(waveOption);
+                        }
+
+                        waveSelect.onchange = function(event){
+                            console.log(event);
+                            var selectedWave = event.target.selectedIndex;
+                            elements.wave = selectedWave;
+                        };
+
+                        parentElement.appendChild(waveSelect);
+                    }();
+
                     var SoundElement = (function(){
 
                         return function(type){
                             var  se = this;
-
-
                             this.cX = null;
                             this.cY = null;
                             this.time = null;
