@@ -26,18 +26,8 @@
             mix = ac.createGain(),
             distanceScale = 0.05,
             audioOut = function(){
-
-                var compressor = ac.createDynamicsCompressor(),
-                    delay = ac.createDelayNode();
-
-                delay.delayTime.value = 0.2;
-
-//                mix.connect(delay);
-                mix.connect(masterGain); //bypass the delay node
-                delay.connect(masterGain);
-                masterGain.connect(compressor);
-
-                compressor.connect(ac.destination);
+                mix.connect(masterGain);
+                masterGain.connect(ac.destination);
             };
 
 
@@ -59,6 +49,7 @@
                     modOsc = ac.createOscillator(),
                     modOscGain = ac.createGain(),
                     panner = ac.createPanner(),
+                    soundVol = ac.createGain(),
                     hasRun = false,
                     now = ac.currentTime,
                     getRampType = function(number){
@@ -88,7 +79,9 @@
                         oscillator.connect(envelope);
                         envelope.connect(panner);
 
-                        panner.connect(mix);
+                        panner.connect(soundVol);
+
+                        soundVol.connect(mix);
 
                     };
 
@@ -143,7 +136,6 @@
                 this.start = function(time){
 
                     if (hasRun){
-                        console.log('this sound has already been run once; it must be recreated to be run again');
                         return false;
                     }
 
@@ -184,6 +176,11 @@
 
                     hasRun = true;
 
+                    return thisSound;
+                };
+
+                this.vol = function(vol){
+                    soundVol.gain.value = vol;
                     return thisSound;
                 };
 

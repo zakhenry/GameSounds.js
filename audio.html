@@ -61,9 +61,9 @@
                     },
                     vol: {
                         points: [
-                            [0.0, 5.0, 0],
-                            [1.7, 5.0, 0],
-                            [1.8, 1.0, 1]
+                            [0.0, 1.0, 0],
+                            [1.7, 1.0, 0],
+                            [1.8, 0.0, 1]
                         ]
                     },
                     mod: {
@@ -255,7 +255,7 @@
                     },
                     vol: {
                         points: [
-                            [0.0, 5.0, 0]
+                            [0.0, 1.0, 0]
                         ]
                     },
                     mod: {
@@ -267,6 +267,8 @@
 
 
             };
+
+            var gameSoundTest = new GameSounds(sounds);
 
             var soundBuilder = new SoundBuilder(document.getElementById('sound_builder'), 1000, 500, 500, 500);
 
