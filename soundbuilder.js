@@ -126,7 +126,7 @@
 
                     var bi = this,
                         canvas = document.createElement('canvas'),
-                        buildContainer = document.createElement('span'),
+                        buildContainer = document.createElement('div'),
                         canvasId = 'soundBuilder-BuildInterfaceCanvas',
                         ctx = canvas.getContext("2d"),
                         canvasWidth = width,
@@ -367,29 +367,32 @@
 
                     var addControls = function(){
 
-
+                        var controls = document.createElement('div');
+                        controls.setAttribute('id', 'soundBuilder-Controls');
 
                         var waveOptions = {0:'sine',1:'square',2:'triangle',3:'sawtooth'};
 
-                        sb.addSelect(buildContainer, 'soundBuilder-SoundLoopSelect', {true:'True',false:'False'}, 'Loop sound: ', function(event){
+                        sb.addSelect(controls, 'soundBuilder-SoundLoopSelect', {true:'True',false:'False'}, 'Loop sound: ', function(event){
                             elements.loop = event.target.selectedIndex;
                         });
 
-                        sb.addSelect(buildContainer, 'soundBuilder-WaveSelect', waveOptions, 'Oscillator wave shape: ', function(event){
+                        sb.addSelect(controls, 'soundBuilder-WaveSelect', waveOptions, 'Oscillator wave shape: ', function(event){
                             elements.wave = event.target.selectedIndex;
                         });
 
-                        sb.addSelect(buildContainer, 'soundBuilder-ModWaveSelect', waveOptions, 'Oscillator Modulator wave shape: ', function(event){
+                        sb.addSelect(controls, 'soundBuilder-ModWaveSelect', waveOptions, 'Oscillator Modulator wave shape: ', function(event){
                             elements.mod.wave = event.target.selectedIndex;
                         });
 
-                        sb.addSlider(buildContainer, 'soundBuilder-ModOscFreqSlider', 0, 100, 'Oscillator Modulator Frequency', function(event){
+                        sb.addSlider(controls, 'soundBuilder-ModOscFreqSlider', 0, 100, 'Oscillator Modulator Frequency', function(event){
                             elements.mod.freq = event.srcElement.value;
                         });
 
-                        sb.addSlider(buildContainer, 'soundBuilder-ModOscGainSlider', 0, 100, 'Oscillator Modulator Gain', function(event){
+                        sb.addSlider(controls, 'soundBuilder-ModOscGainSlider', 0, 100, 'Oscillator Modulator Gain', function(event){
                             elements.mod.gain = event.srcElement.value;
                         });
+
+                        buildContainer.appendChild(controls);
 
                     }();
 
@@ -495,7 +498,7 @@
             TestInterface = (function(){
                 return function(width, height){
                     var self = this,
-                        testContainer = document.createElement('span'),
+                        testContainer = document.createElement('div'),
                         canvas = document.createElement('canvas'),
                         ctx = canvas.getContext("2d"),
                         canvasWidth = null,
@@ -569,10 +572,6 @@
                         testSoundData = soundData;
                     };
 
-                    sb.addSlider(testContainer, 'soundBuilder-VolumeSlider', 0, 100, "Master volume: ", function(event){
-                        gs.setVolume(event.srcElement.value);
-                    });
-
                     self.updateListenerPosition(canvasWidth/2, canvasHeight/2); //default to middle of canvas
 
                     self.draw();
@@ -582,7 +581,7 @@
         this.buildInterface = new BuildInterface(BIwidth, BIheight);
         this.testInterface = new TestInterface(TIwidth, TIheight);
 
-        var savedSoundContainer = document.createElement('span');
+        var savedSoundContainer = document.createElement('div');
         savedSoundContainer.setAttribute('id', 'soundBuilder-SavedSounds');
         parentElement.appendChild(savedSoundContainer);
 
@@ -601,6 +600,10 @@
                 };
             }
         }();
+
+        sb.addSlider(savedSoundContainer, 'soundBuilder-VolumeSlider', 0, 100, "Master volume: ", function(event){
+            gs.setVolume(event.srcElement.value);
+        });
 
 
     };

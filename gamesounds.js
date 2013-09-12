@@ -179,6 +179,11 @@
                     return thisSound;
                 };
 
+                /**
+                 * Set the volume of the currently playing sound
+                 * @param vol
+                 * @returns {*}
+                 */
                 this.vol = function(vol){
                     soundVol.gain.value = vol;
                     return thisSound;
