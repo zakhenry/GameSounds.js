@@ -47,6 +47,8 @@
             appendNode.appendChild(select);
 
             select.onchange = onchangefunction;
+
+            return select;
         };
 
         /**
@@ -72,6 +74,8 @@
             appendNode.appendChild(slider);
 
             slider.onchange = onchangefunction;
+
+            return slider;
         };
 
 
@@ -244,6 +248,19 @@
                         },
                         volScale = function(vol, toCanvas){
                             return getScale(vol, limits.vol, canvasHeight, true, toCanvas);
+                        },
+                        inputControls = {
+                            loop: null,
+                            wave: null,
+                            modWave: null,
+                            modFreq: null,
+                            modGain: null
+                        },
+                        waveOptions = {
+                            0:'sine',
+                            1:'square',
+                            2:'triangle',
+                            3:'sawtooth'
                         }
                         ;
 
@@ -370,27 +387,27 @@
                         var controls = document.createElement('div');
                         controls.setAttribute('id', 'soundBuilder-Controls');
 
-                        var waveOptions = {0:'sine',1:'square',2:'triangle',3:'sawtooth'};
-
-                        sb.addSelect(controls, 'soundBuilder-SoundLoopSelect', {true:'True',false:'False'}, 'Loop sound: ', function(event){
+                        inputControls.loop = sb.addSelect(controls, 'soundBuilder-SoundLoopSelect', {true:'True',false:'False'}, 'Loop sound: ', function(event){
                             elements.loop = event.target.selectedIndex;
                         });
 
-                        sb.addSelect(controls, 'soundBuilder-WaveSelect', waveOptions, 'Oscillator wave shape: ', function(event){
+                        inputControls.wave = sb.addSelect(controls, 'soundBuilder-WaveSelect', waveOptions, 'Oscillator wave shape: ', function(event){
                             elements.wave = event.target.selectedIndex;
                         });
 
-                        sb.addSelect(controls, 'soundBuilder-ModWaveSelect', waveOptions, 'Oscillator Modulator wave shape: ', function(event){
+                        inputControls.modWave = sb.addSelect(controls, 'soundBuilder-ModWaveSelect', waveOptions, 'Oscillator Modulator wave shape: ', function(event){
                             elements.mod.wave = event.target.selectedIndex;
                         });
 
-                        sb.addSlider(controls, 'soundBuilder-ModOscFreqSlider', 0, 100, 'Oscillator Modulator Frequency', function(event){
+                        inputControls.modFreq = sb.addSlider(controls, 'soundBuilder-ModOscFreqSlider', 0, 100, 'Oscillator Modulator Frequency', function(event){
                             elements.mod.freq = event.srcElement.value;
                         });
 
-                        sb.addSlider(controls, 'soundBuilder-ModOscGainSlider', 0, 100, 'Oscillator Modulator Gain', function(event){
+                        inputControls.modGain = sb.addSlider(controls, 'soundBuilder-ModOscGainSlider', 0, 100, 'Oscillator Modulator Gain', function(event){
                             elements.mod.gain = event.srcElement.value;
                         });
+
+                        console.log(inputControls);
 
                         buildContainer.appendChild(controls);
 
@@ -458,6 +475,15 @@
                         elements.duration = soundData.duration;
                         elements.mod = soundData.mod;
 
+                        inputControls.loop.value = (typeof soundData.duration == 'undefined') ? 'True':'False';
+                        inputControls.wave.value = waveOptions[elements.wave];
+
+                        inputControls.modWave.value = waveOptions[elements.mod.wave];
+                        inputControls.modFreq.value = elements.mod.freq;
+                        inputControls.modGain.value = elements.mod.gain;
+
+                        console.log(inputControls.loop.value);
+
                         console.log(soundData);
 
                         for(var freqId in soundData.freq.points){
@@ -489,7 +515,6 @@
 
                     bi.loadSound(gs.sounds['example']);
                     bi.draw();
-
 
                 };
 
