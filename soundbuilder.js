@@ -152,7 +152,7 @@
 
                             return quantised;
                         },
-                        currentTool = 'vol',
+                        currentTool = 'freq',
                         elements = {
                             freq: {},
                             vol: {},
@@ -196,8 +196,10 @@
                                     }
                                 };
 
-                                if (!this.loop){
+                                if (this.loop){
                                     soundData.duration = elements.vol[timePoint].time; //the last one
+                                }else{
+                                    delete soundData.duration;
                                 }
 
                                 return soundData;
@@ -271,6 +273,7 @@
                     canvas.setAttribute('width', width);
                     canvas.setAttribute('height', height);
                     buildContainer.setAttribute('id', 'soundBuilder-BuildInterfaceContainer');
+
                     buildContainer.appendChild(canvas);
                     parentElement.appendChild(buildContainer);
 
@@ -362,13 +365,14 @@
                                 elements[currentTool][mouseX] = newSoundElement; //replace the mouseY coord (cant be more than one stacked)
                             }
 
-                            sb.testInterface.setTestSound(elements.toGameSoundsObject());
+
                         }else if (event.which == 3){
                             currentTool = currentTool == 'freq' ? 'vol':'freq';
                         }
 
 
                         bi.draw();
+                        bi.updateCode();
                     };
 
                     document.onkeydown = function(event) {
@@ -389,22 +393,27 @@
 
                         inputControls.loop = sb.addSelect(controls, 'soundBuilder-SoundLoopSelect', {true:'True',false:'False'}, 'Loop sound: ', function(event){
                             elements.loop = event.target.selectedIndex;
+                            bi.updateCode();
                         });
 
                         inputControls.wave = sb.addSelect(controls, 'soundBuilder-WaveSelect', waveOptions, 'Oscillator wave shape: ', function(event){
                             elements.wave = event.target.selectedIndex;
+                            bi.updateCode();
                         });
 
                         inputControls.modWave = sb.addSelect(controls, 'soundBuilder-ModWaveSelect', waveOptions, 'Oscillator Modulator wave shape: ', function(event){
                             elements.mod.wave = event.target.selectedIndex;
+                            bi.updateCode();
                         });
 
                         inputControls.modFreq = sb.addSlider(controls, 'soundBuilder-ModOscFreqSlider', 0, 100, 'Oscillator Modulator Frequency', function(event){
                             elements.mod.freq = event.srcElement.value;
+                            bi.updateCode();
                         });
 
                         inputControls.modGain = sb.addSlider(controls, 'soundBuilder-ModOscGainSlider', 0, 100, 'Oscillator Modulator Gain', function(event){
                             elements.mod.gain = event.srcElement.value;
+                            bi.updateCode();
                         });
 
                         console.log(inputControls);
@@ -412,6 +421,13 @@
                         buildContainer.appendChild(controls);
 
                     }();
+
+                    this.updateCode = function(){
+                        codeContainer.innerText = elements.toJsonString();
+                        sb.testInterface.setTestSound(elements.toGameSoundsObject());
+                    };
+
+
 
                     var SoundElement = (function(){
 
@@ -622,6 +638,7 @@
                     var soundName = event.srcElement.getAttribute('data-soundname');
                     sb.testInterface.setTestSound(gs.sounds[soundName]);
                     sb.buildInterface.loadSound(gs.sounds[soundName]);
+                    sb.buildInterface.updateCode();
                 };
             }
         }();
@@ -630,9 +647,11 @@
             gs.setVolume(event.srcElement.value);
         });
 
+        var codeContainer = document.createElement('pre');
+        codeContainer.setAttribute('id', 'soundBuilder-BuildInterfaceCode');
+        savedSoundContainer.appendChild(codeContainer);
 
     };
-
 
 
 })();
