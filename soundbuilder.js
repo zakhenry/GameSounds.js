@@ -126,7 +126,8 @@
 
                     var bi = this,
                         canvas = document.createElement('canvas'),
-                        canvasId = 'sound_builder_canvas',
+                        buildContainer = document.createElement('span'),
+                        canvasId = 'soundBuilder-BuildInterfaceCanvas',
                         ctx = canvas.getContext("2d"),
                         canvasWidth = width,
                         canvasHeight = height,
@@ -249,10 +250,12 @@
                     canvasWidth = width;
                     canvasHeight = height;
 
-                    canvas.setAttribute('id', 'sound_builder_canvas')
+                    canvas.setAttribute('id', 'soundBuilder-BuildInterfaceCanvas');
                     canvas.setAttribute('width', width);
                     canvas.setAttribute('height', height);
-                    parentElement.appendChild(canvas);
+                    buildContainer.setAttribute('id', 'soundBuilder-BuildInterfaceContainer');
+                    buildContainer.appendChild(canvas);
+                    parentElement.appendChild(buildContainer);
 
                     canvasOffset = canvas.getBoundingClientRect();
 
@@ -368,23 +371,23 @@
 
                         var waveOptions = {0:'sine',1:'square',2:'triangle',3:'sawtooth'};
 
-                        sb.addSelect(parentElement, 'soundBuilder-SoundLoopSelect', {true:'True',false:'False'}, 'Loop sound: ', function(event){
+                        sb.addSelect(buildContainer, 'soundBuilder-SoundLoopSelect', {true:'True',false:'False'}, 'Loop sound: ', function(event){
                             elements.loop = event.target.selectedIndex;
                         });
 
-                        sb.addSelect(parentElement, 'soundBuilder-WaveSelect', waveOptions, 'Oscillator wave shape: ', function(event){
+                        sb.addSelect(buildContainer, 'soundBuilder-WaveSelect', waveOptions, 'Oscillator wave shape: ', function(event){
                             elements.wave = event.target.selectedIndex;
                         });
 
-                        sb.addSelect(parentElement, 'soundBuilder-ModWaveSelect', waveOptions, 'Oscillator Modulator wave shape: ', function(event){
+                        sb.addSelect(buildContainer, 'soundBuilder-ModWaveSelect', waveOptions, 'Oscillator Modulator wave shape: ', function(event){
                             elements.mod.wave = event.target.selectedIndex;
                         });
 
-                        sb.addSlider(parentElement, 'soundBuilder-ModOscFreqSlider', 0, 100, 'Oscillator Modulator Frequency', function(event){
+                        sb.addSlider(buildContainer, 'soundBuilder-ModOscFreqSlider', 0, 100, 'Oscillator Modulator Frequency', function(event){
                             elements.mod.freq = event.srcElement.value;
                         });
 
-                        sb.addSlider(parentElement, 'soundBuilder-ModOscGainSlider', 0, 100, 'Oscillator Modulator Gain', function(event){
+                        sb.addSlider(buildContainer, 'soundBuilder-ModOscGainSlider', 0, 100, 'Oscillator Modulator Gain', function(event){
                             elements.mod.gain = event.srcElement.value;
                         });
 
@@ -492,7 +495,7 @@
             TestInterface = (function(){
                 return function(width, height){
                     var self = this,
-                        container = document.createElement('span'),
+                        testContainer = document.createElement('span'),
                         canvas = document.createElement('canvas'),
                         ctx = canvas.getContext("2d"),
                         canvasWidth = null,
@@ -509,6 +512,8 @@
                         testSoundData = gs.sounds[testSoundName],
                         testSound = null
                     ;
+
+                    testContainer.setAttribute('id', 'soundBuilder-TestInterfaceContainer')
 
                     canvas.onmousemove = function(event){
 
@@ -534,11 +539,11 @@
                     canvasWidth = width;
                     canvasHeight = height;
 
-                    canvas.setAttribute('id', 'sound_tester_canvas')
+                    canvas.setAttribute('id', 'soundBuilder-TestInterfaceCanvas')
                     canvas.setAttribute('width', width);
                     canvas.setAttribute('height', height);
-                    parentElement.appendChild(container);
-                    container.appendChild(canvas);
+                    parentElement.appendChild(testContainer);
+                    testContainer.appendChild(canvas);
 
                     canvasOffset = canvas.getBoundingClientRect();
 
@@ -564,7 +569,7 @@
                         testSoundData = soundData;
                     };
 
-                    sb.addSlider(container, 'soundBuilder-VolumeSlider', 0, 100, "Master volume: ", function(event){
+                    sb.addSlider(testContainer, 'soundBuilder-VolumeSlider', 0, 100, "Master volume: ", function(event){
                         gs.setVolume(event.srcElement.value);
                     });
 
@@ -577,12 +582,17 @@
         this.buildInterface = new BuildInterface(BIwidth, BIheight);
         this.testInterface = new TestInterface(TIwidth, TIheight);
 
+        var savedSoundContainer = document.createElement('span');
+        savedSoundContainer.setAttribute('id', 'soundBuilder-SavedSounds');
+        parentElement.appendChild(savedSoundContainer);
+
+
         this.createSoundButtons = function(){
             for (var sound in gs.sounds){
                 var soundButton = document.createElement('button');
                 soundButton.setAttribute('data-soundname', sound);
                 soundButton.innerText = sound;
-                parentElement.appendChild(soundButton);
+                savedSoundContainer.appendChild(soundButton);
 
                 soundButton.onclick = function(event){
                     var soundName = event.srcElement.getAttribute('data-soundname');
