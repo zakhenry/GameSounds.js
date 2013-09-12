@@ -19,16 +19,26 @@
     this.GameSounds = function (initSounds){
 
         this.sounds = initSounds; //public
-        //Set up the audio context
-        var ac = new (window.AudioContext || window.webkitAudioContext),
-//            sounds = initSounds,
-            masterGain = ac.createGain(),
+
+        var ac;
+        try {
+            window.AudioContext = window.AudioContext||window.webkitAudioContext;
+            ac = new AudioContext();
+        }
+        catch(e) {
+//            alert('Web Audio API is not supported in this browser');
+            return false;
+        }
+
+        var masterGain = ac.createGain(),
             mix = ac.createGain(),
             distanceScale = 0.05,
             audioOut = function(){
                 mix.connect(masterGain);
                 masterGain.connect(ac.destination);
             };
+
+
 
 
         Sound = (function (){

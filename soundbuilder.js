@@ -78,6 +78,14 @@
             return slider;
         };
 
+        var savedSoundContainer = document.createElement('div');
+        savedSoundContainer.setAttribute('id', 'soundBuilder-SavedSounds');
+
+
+        var codeContainer = document.createElement('pre');
+        codeContainer.setAttribute('id', 'soundBuilder-BuildInterfaceCode');
+
+
 
         var sb = this,
             gs = new GameSounds({
@@ -101,7 +109,6 @@
                     }
                 },
                 yesThisIsPhone: {
-                    duration: 5.0,
                     wave: 3,
                     freq: {
                         points: [
@@ -167,8 +174,6 @@
                             loop: false,
 
                             toGameSoundsObject: function(){
-
-                                console.log('creating new gamesounds object');
 
                                 var freqPoints = [], volPoints = [];
 
@@ -284,12 +289,20 @@
                         ctx.fillStyle="#222222";
                         ctx.fillRect(0,0,canvasWidth,canvasHeight);
 
+//                        blue = 0x0098D4;
+//                        green = 0x01BB00;
+//                        lightGrey = 0xDEE8E9;
+//                        orange = 0xFE4F00;
+//                        darkGrey = 0xC3C9C9;
+//                        black = 0x000000;
+//                        white = 0xFFFFFF;
+
                         switch(currentTool){
                             case 'freq':
-                                ctx.fillStyle="#773a0e";
+                                ctx.fillStyle="#0098D4";
                                 break;
                             case 'vol':
-                                ctx.fillStyle="#83a9f0";
+                                ctx.fillStyle="#01BB00";
                                 break;
                         }
                         ctx.fillRect(mouseX-10, mouseY-10, 20, 20);
@@ -325,10 +338,10 @@
 
                                 switch(soundElementType){
                                     case 'freq':
-                                        ctx.strokeStyle = '#7f720a';
+                                        ctx.strokeStyle = '#3682A1';
                                         break;
                                     case 'vol':
-                                        ctx.strokeStyle = '#63ff92';
+                                        ctx.strokeStyle = '#2F8E2F';
                                         break;
                                 }
 
@@ -353,8 +366,6 @@
 
                     canvas.onmousedown = function(event){
 
-                        console.log('mousedownevent', event)
-
                         if (event.which == 1){ //left click
 
 
@@ -377,12 +388,8 @@
 
                     document.onkeydown = function(event) {
 
-                        console.log(event.keyCode);
                         if (event.keyCode == 32) { //spacebar
                             var newSound = gs.set(elements.toGameSoundsObject()).fire();
-
-                            console.log(newSound);
-                            console.log(elements.toJsonString());
                         }
                     };
 
@@ -416,7 +423,6 @@
                             bi.updateCode();
                         });
 
-                        console.log(inputControls);
 
                         buildContainer.appendChild(controls);
 
@@ -452,7 +458,6 @@
                                 }
 
 
-                                console.log('adding node of type ' + se.type + ' with time at '+time+' with magnitude of '+magnitude+'at canvas position '+this.cX+','+this.cY)
 
                                 return this;
                             };
@@ -471,11 +476,11 @@
                             this.drawElement = function(ctx){
                                 switch(type){
                                     case 'freq':
-                                        ctx.fillStyle="#773a0e";
-                                    break;
+                                        ctx.fillStyle="#0098D4";
+                                        break;
                                     case 'vol':
-                                        ctx.fillStyle="#83a9f0";
-                                    break;
+                                        ctx.fillStyle="#01BB00";
+                                        break;
                                 }
                                 ctx.fillRect(this.cX-10, this.cY-10, 20, 20);
                             };
@@ -498,9 +503,6 @@
                         inputControls.modFreq.value = elements.mod.freq;
                         inputControls.modGain.value = elements.mod.gain;
 
-                        console.log(inputControls.loop.value);
-
-                        console.log(soundData);
 
                         for(var freqId in soundData.freq.points){
                             var freqElement = soundData.freq.points[freqId];
@@ -522,8 +524,6 @@
 
                         }
 
-                        console.log('loaded', soundData, elements);
-
                         bi.draw();
 
                     };
@@ -531,6 +531,7 @@
 
                     bi.loadSound(gs.sounds['example']);
                     bi.draw();
+
 
                 };
 
@@ -622,9 +623,7 @@
         this.buildInterface = new BuildInterface(BIwidth, BIheight);
         this.testInterface = new TestInterface(TIwidth, TIheight);
 
-        var savedSoundContainer = document.createElement('div');
-        savedSoundContainer.setAttribute('id', 'soundBuilder-SavedSounds');
-        parentElement.appendChild(savedSoundContainer);
+        sb.buildInterface.updateCode();
 
 
         this.createSoundButtons = function(){
@@ -647,9 +646,10 @@
             gs.setVolume(event.srcElement.value);
         });
 
-        var codeContainer = document.createElement('pre');
-        codeContainer.setAttribute('id', 'soundBuilder-BuildInterfaceCode');
         savedSoundContainer.appendChild(codeContainer);
+        parentElement.appendChild(savedSoundContainer);
+
+
 
     };
 
