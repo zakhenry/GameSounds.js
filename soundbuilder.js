@@ -80,6 +80,7 @@
 
         var savedSoundContainer = document.createElement('div');
         savedSoundContainer.setAttribute('id', 'soundBuilder-SavedSounds');
+        savedSoundContainer.setAttribute('id', 'soundBuilder-SavedSounds');
 
 
         var codeContainer = document.createElement('pre');
@@ -89,47 +90,17 @@
 
         var sb = this,
             gs = new GameSounds({
-                example: {"wave":2,"duration":5,"freq":{"points":[[0,874,1],[0.6,874,1],[1.2,912,1],[1.6,114,1],[2.1,0,1]]},"vol":{"points":[[0,0,1],[0.1,1,1],[0.2,0.08,1],[0.3,0.08,1],[0.4,0.88,1],[0.5,0.88,1],[0.8,0.08,1],[1,0.8,1],[2.7,0,1]]},"mod":{"wave":3,"freq":2,"gain":0}},
-                siren: {
-                    wave: 3,
-                    freq: {
-                        points: [
-                            [0.0, 700, 0] //time, frequency, 0=set, 1=linear ramp, 2= exp ramp
-                        ]
-                    },
-                    vol: {
-                        points: [
-                            [0.0, 5.0, 0]
-                        ]
-                    },
-                    mod: {
-                        wave: 3,
-                        freq: 2,
-                        gain: 100
-                    }
-                },
-                yesThisIsPhone: {
-                    wave: 3,
-                    freq: {
-                        points: [
-                            [0.0, 700, 0] //time, frequency, 0=set, 1=linear ramp, 2= exp ramp
-                        ]
-                    },
-                    vol: {
-                        points: [
-                            [0.0, 1.0, 0],
-                            [1.0, 1.0, 0],
-                            [1.1, 0.0, 1],
-                            [1.2, 1.0, 1]
-                        ]
-                    },
-                    mod: {
-                        wave: 1,
-                        freq: 10,
-                        gain: 100
-                    }
-                },
-                Dave:{"wave":2,"freq":{"points":[[0,38,1],[0.1,38,1],[0.6,38,1],[0.7,76,1],[0.8,38,1],[0.9,38,1],[1,38,1],[1.1,38,1],[1.2,38,1],[1.3,38,1],[1.4,38,1],[1.8,38,1],[2.2,76,1],[2.4,38,1]]},"vol":{"points":[[0,0.88,1],[0.1,0.28,1],[0.2,0.24,1],[0.4,0.64,1],[2.8,0.24,1],[3.1,0.24,1],[4,0.44,1]]},"mod":{"wave":3,"freq":"0","gain":"24"}}
+                shipSound: {wave:0,freq:{points:[[0,114,1]]},vol:{points:[[0,5,1]]},mod:{wave:0,freq:26,gain:11}},
+                itemPickup: {wave:1,duration:0.9,freq:{points:[[0,646,1],[0.1,342,1],[0.4,304,1]]},vol:{points:[[0,0,1],[0.1,0.68,1],[0.2,0.76,1],[0.3,0.6,1],[0.5,0.48,1],[0.6,0.68,1],[0.9,0,1]]},mod:{wave:1,freq:43,gain:41}},
+                itemSpawn:{wave:0,duration:0.5,freq:{points:[[0,114,1],[0.2,646,1],[0.3,380,1]]},vol:{points:[[0,0,1],[0.1,0.6,1],[0.5,0,1]]},mod:{wave:0,freq:51,gain:51}},
+                pulse: {wave:0,duration:2.6,freq:{points:[[0,114,1],[0.1,646,1],[0.2,456,1],[0.5,760,1],[1.5,646,1],[2.4,266,1],[2.5,0,1]]},vol:{points:[[0,0,1],[0.1,0.6,1],[0.5,0.12,1],[0.6,0.4,1],[2.6,0,1]]},mod:{wave:2,freq:49,gain:78}},
+                speedBoostUp: {wave:0,duration:1.8,freq:{points:[[0,76,1],[0.4,114,1],[0.8,228,1],[1,380,1],[1.1,494,1]]},vol:{points:[[0,0.56,1],[0.7,0.64,1],[1.3,0.84,1],[1.8,0,1]]},mod:{wave:1,freq:43,gain:41}},
+                speedBoostDown: {wave:0,duration:1.1,freq:{points:[[0,456,1],[0.4,418,1],[0.8,304,1],[1,190,1],[1.1,0,1]]},vol:{points:[[0,0.56,1],[0.7,0.64,1],[1.1,0,1]]},mod:{wave:1,freq:43,gain:41}},
+                invisibilityOn: {wave:1,duration:1.6,freq:{points:[[0,608,1],[0.1,646,1],[0.4,494,1],[0.8,456,1],[0.9,456,1],[1.5,380,1]]},vol:{points:[[0,0,1],[0.8,0.6,1],[1.6,0,1]]},mod:{wave:2,freq:22,gain:69}},
+                invisibilityOff: {wave:1,duration:1.6,freq:{points:[[0,380,1],[0.4,494,1],[0.8,456,1],[0.9,456,1],[1.2,494,1],[1.5,646,1]]},vol:{points:[[0,0,1],[0.8,0.6,1],[1.6,0,1]]},mod:{wave:2,freq:22,gain:69}},
+                wallHit:{wave:1,duration:0.1,freq:{points:[[0,0,1]]},vol:{points:[[0,0.68,1],[0.1,0.68,1]]},mod:{wave:1,freq:43,gain:41}},
+                ded: {wave:1,duration:1.4,freq:{points:[[0,228,1],[0.5,228,1],[0.7,152,1],[1.4,114,1]]},vol:{points:[[0,0,1],[0.1,0.4,1],[0.2,0.4,1],[0.4,0,1],[0.6,0,1],[0.7,0.24,1],[0.9,0.24,1],[1.4,0,1]]},mod:{wave:0,freq:22,gain:89}},
+                siren: {wave:3,freq:{points:[[0,700,1]]},vol:{points:[[0,5,1]]},mod:{wave:3,freq:2,gain:100}}
             }),
 
             BuildInterface = (function(){
@@ -187,8 +158,7 @@
                                 }
 
                                 var soundData =  {
-                                    wave: this.wave,
-                                    duration: this.duration,
+                                    wave: elements.wave,
                                     freq: {
                                         points: freqPoints
                                     },
@@ -196,16 +166,14 @@
                                         points: volPoints
                                     },
                                     mod: {
-                                        wave: this.mod.wave,
-                                        freq: this.mod.freq,
-                                        gain: this.mod.gain
+                                        wave: elements.mod.wave,
+                                        freq: elements.mod.freq,
+                                        gain: elements.mod.gain
                                     }
                                 };
 
-                                if (this.loop){
+                                if (elements.loop){
                                     soundData.duration = elements.vol[timePoint].time; //the last one
-                                }else{
-                                    delete soundData.duration;
                                 }
 
                                 return soundData;
@@ -415,12 +383,12 @@
                         });
 
                         inputControls.modFreq = sb.addSlider(controls, 'soundBuilder-ModOscFreqSlider', 0, 100, 'Oscillator Modulator Frequency', function(event){
-                            elements.mod.freq = event.srcElement.value;
+                            elements.mod.freq = Number(event.srcElement.value);
                             bi.updateCode();
                         });
 
                         inputControls.modGain = sb.addSlider(controls, 'soundBuilder-ModOscGainSlider', 0, 100, 'Oscillator Modulator Gain', function(event){
-                            elements.mod.gain = event.srcElement.value;
+                            elements.mod.gain = Number(event.srcElement.value);
                             bi.updateCode();
                         });
 
@@ -496,6 +464,7 @@
                         elements.wave = soundData.wave;
                         elements.duration = soundData.duration;
                         elements.mod = soundData.mod;
+                        elements.loop = (typeof soundData.duration != 'undefined');
 
                         inputControls.loop.value = (typeof soundData.duration == 'undefined') ? 'True':'False';
                         inputControls.wave.value = waveOptions[elements.wave];
@@ -530,7 +499,7 @@
                     };
 
 
-                    bi.loadSound(gs.sounds['example']);
+                    bi.loadSound(gs.sounds['ded']);
                     bi.draw();
 
 
@@ -644,7 +613,7 @@
         }();
 
         sb.addSlider(savedSoundContainer, 'soundBuilder-VolumeSlider', 0, 100, "Master volume: ", function(event){
-            gs.setVolume(event.srcElement.value);
+            gs.setVolume(Number(event.srcElement.value));
         });
 
         savedSoundContainer.appendChild(codeContainer);
