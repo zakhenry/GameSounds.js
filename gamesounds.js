@@ -1,8 +1,9 @@
 /**
  * gamesounds.js
- * Game sounds for the javascript games, call a sound with gameSounds.triggerSound('soundname')
+ * Game sounds for the javascript games
+ * https://github.com/xiphiaz/GameSounds.js
  *
- * @author Zak Henry - 2013
+ * @author Zak Henry (https://github.com/xiphiaz) - 2013
  */
 
 
